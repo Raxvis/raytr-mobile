@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
-export default function Item() {
+const Item = () => {
   const { categoryId, itemId } = useLocalSearchParams();
 
   console.log({ categoryId, itemId });
@@ -10,4 +10,6 @@ export default function Item() {
       <Text>View Item + Ratings</Text>
     </View>
   );
-}
+};
+
+export default Item;

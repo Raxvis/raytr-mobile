@@ -2,7 +2,7 @@ import { Link } from 'expo-router';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { Category } from '../types';
 
-export default function CategoryListItem({ category }: { category: Category }) {
+const CategoryListItem = ({ category }: { category: Category }) => {
   return (
     <Link href={`/category/${category.categoryId}`} asChild>
       <TouchableOpacity>
@@ -15,4 +15,6 @@ export default function CategoryListItem({ category }: { category: Category }) {
       </TouchableOpacity>
     </Link>
   );
-}
+};
+
+export default CategoryListItem;

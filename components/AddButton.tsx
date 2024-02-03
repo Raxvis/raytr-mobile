@@ -1,29 +1,23 @@
-import { Link } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { DocumentPlusIcon, FolderPlusIcon, PlusIcon, SquaresPlusIcon, XMarkIcon } from 'react-native-heroicons/outline';
-import { useNavigation, router } from 'expo-router';
+import { usePathname, router } from 'expo-router';
 
 const AddButton = () => {
-  const navigation = useNavigation();
-
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   const navigate = useCallback(
     (route) => {
       setOpen(false);
-
-      const { routes } = navigation.getState();
-      const lastRoute = routes[routes.length - 1];
-
-      if (lastRoute.name.includes('add/')) {
-        router.replace(route);
-      } else {
-        router.navigate(route);
-      }
+      router.navigate(route);
     },
     [setOpen],
   );
+
+  if (pathname.includes('add/') || pathname.includes('/edit')) {
+    return null;
+  }
 
   return (
     <View className="absolute bottom-8 left-0 right-0 w-full">

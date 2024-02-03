@@ -1,19 +1,13 @@
-import { addCategory } from '../../store/categories';
-import { Category, RatingSchema } from '../../types';
-import { router } from 'expo-router';
-import { useCallback, useEffect, useReducer } from 'react';
-import { useDispatch } from 'react-redux';
+import { RatingSchema } from '../../../types';
+import { RootState } from '../../../store/configureStore';
+import { removeCategory, updateCategory } from '../../../store/categories';
+import { useCallback, useEffect, useMemo, useReducer } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocalSearchParams, router } from 'expo-router';
 import { View, Text, ScrollView } from 'react-native';
-import Button from '../../components/Button';
-import TextInput from '../../components/TextInput';
-import uuid from '../../utils/uuid';
-
-const getNewCategory = (): Category => ({
-  categoryId: uuid(),
-  categoryName: '',
-  categoryDescription: '',
-  ratingSchema: [],
-});
+import Button from '../../../components/Button';
+import TextInput from '../../../components/TextInput';
+import uuid from '../../../utils/uuid';
 
 const getNewRatingSchema = (): RatingSchema => ({
   ratingSchemaId: uuid(),
@@ -24,8 +18,8 @@ const getNewRatingSchema = (): RatingSchema => ({
 
 const reducer = (state, { payload, type }: { payload?: any; type: string }) => {
   switch (type) {
-    case 'RESET':
-      return { ...getNewCategory() };
+    case 'SET':
+      return { ...payload };
     case 'UPDATE':
       return { ...state, ...payload };
     case 'ADD_METRIC':
@@ -45,9 +39,13 @@ const reducer = (state, { payload, type }: { payload?: any; type: string }) => {
   }
 };
 
-const AddCategory = () => {
+const EditCategory = () => {
   const reduxDispatch = useDispatch();
   const [state, dispatch] = useReducer(reducer, {});
+  const { categoryId } = useLocalSearchParams();
+  const { categories } = useSelector((state: RootState) => state.categories);
+
+  const category = useMemo(() => categories.find((category) => category.categoryId === categoryId), []);
 
   const updateValue = (key) => (value) => dispatch({ type: 'UPDATE', payload: { [key]: value } });
   const updateRatingSchema = (ratingSchemaId, key) => (value) =>
@@ -60,16 +58,25 @@ const AddCategory = () => {
     });
 
   useEffect(() => {
-    dispatch({ type: 'RESET' });
-  }, []);
+    dispatch({ type: 'SET', payload: category });
+  }, [category]);
 
   const addRatingMetric = useCallback(() => {
     dispatch({ type: 'ADD_METRIC' });
   }, []);
 
   const saveCategory = useCallback(() => {
-    reduxDispatch(addCategory(state));
+    reduxDispatch(updateCategory(state));
     router.replace(`/category/${state.categoryId}`);
+  }, [state]);
+
+  const deleteCategory = useCallback(() => {
+    reduxDispatch(removeCategory(state.categoryId));
+    while (router.canGoBack()) {
+      // Pop from stack until one element is left
+      router.back();
+    }
+    router.replace(`/`);
   }, [state]);
 
   return (
@@ -98,11 +105,12 @@ const AddCategory = () => {
         ))}
         <Button onPress={addRatingMetric} text="Add Rating Metric" />
       </ScrollView>
-      <View className="ios:mb-12 android:mb-4 flex">
-        <Button onPress={saveCategory} text="Add Category" />
+      <View className="ios:mb-12 android:mb-4 flex space-x-2">
+        <Button onPress={saveCategory} text="Save Category" />
+        <Button color="red" onPress={deleteCategory} text="Delete Category" />
       </View>
     </View>
   );
 };
 
-export default AddCategory;
+export default EditCategory;

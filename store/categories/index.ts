@@ -1,4 +1,3 @@
-import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import { Category } from '../../types';
 import actions from './actions';
@@ -16,13 +15,13 @@ export const categoriesSlice = createSlice({
   initialState,
   reducers: {
     addCategory: actions.addCategory,
-    removeCategory: actions.removeCategory,
     clearCategories: () => initialState,
+    removeCategory: actions.removeCategory,
     setCategories: actions.setCategories,
+    updateCategory: actions.updateCategory,
   },
 });
 
-// Action creators are generated for each case reducer function
-export const { addCategory, removeCategory, clearCategories, setCategories } = categoriesSlice.actions;
+export const { addCategory, removeCategory, clearCategories, setCategories, updateCategory } = categoriesSlice.actions;
 
 export default categoriesSlice.reducer;
