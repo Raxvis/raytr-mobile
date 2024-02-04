@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import CategoryItem from '../../../components/CategoryItem';
 import getItemsWithRatingsByCategory from '../../../utils/getItemsWithRatingsByCategory';
-import NavButton from '../../../components/NavButton';
+import NavButton from '../../../components/ui/NavButton';
 
 const Category = () => {
   const { categoryId } = useLocalSearchParams();

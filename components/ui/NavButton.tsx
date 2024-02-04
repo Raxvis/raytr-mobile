@@ -1,6 +1,5 @@
 import React, { ComponentType } from 'react';
 import { View, Pressable, Text } from 'react-native';
-import colors from 'tailwindcss/colors';
 import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 import { SvgProps } from 'react-native-svg';
 

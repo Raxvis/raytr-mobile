@@ -1,8 +1,8 @@
 import * as SplashScreen from 'expo-splash-screen';
 import { Text, View } from 'react-native';
 import store, { persistedStore } from '../store/configureStore';
-import AddButton from '../components/AddButton';
-import NavButton from '../components/NavButton';
+import AddButton from '../components/layout/AddButton';
+import NavButton from '../components/ui/NavButton';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { Stack } from 'expo-router/stack';

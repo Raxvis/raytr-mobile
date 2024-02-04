@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
 type ButtonProps = {
+  classNames?: string;
   onPress: () => void;
   text: string;
   color?: string;
@@ -17,12 +18,13 @@ const getColor = (color) => {
   }
 };
 
-const Button = ({ color, onPress, text }: ButtonProps) => {
+const Button = ({ classNames, color, onPress, text }: ButtonProps) => {
   return (
-    <TouchableOpacity onPress={onPress}>
-      <View className={classnames('mt-4 flex flex-row items-center justify-center rounded p-2', getColor(color))}>
-        <Text className="text-white">{text}</Text>
-      </View>
+    <TouchableOpacity
+      className={classnames('mt-4 flex flex-row items-center justify-center rounded p-2', getColor(color), classNames)}
+      onPress={onPress}
+    >
+      <Text className="text-white">{text}</Text>
     </TouchableOpacity>
   );
 };
