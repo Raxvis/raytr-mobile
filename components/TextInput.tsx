@@ -1,15 +1,17 @@
 import React from 'react';
 import { View, Text, TextInput, KeyboardAvoidingView } from 'react-native';
 import classnames from 'classnames';
+import type { KeyboardType } from 'react-native';
 
 type TextInputProps = {
   name?: string;
   onChange: (value: string) => void;
   value: string;
   multiline?: boolean;
+  keyboardType?: KeyboardType;
 };
 
-const TextInputField = ({ onChange, name, multiline, value }: TextInputProps) => {
+const TextInputField = ({ onChange, name, multiline, value, keyboardType }: TextInputProps) => {
   const className = classnames(
     'h-auto flex flex-row rounded border border-gray-800 p-2  justify-center items-top',
     multiline ? 'min-h-[100px] max-h-[300px]' : '',
@@ -20,7 +22,14 @@ const TextInputField = ({ onChange, name, multiline, value }: TextInputProps) =>
       <View className="my-2 space-y-2">
         {name ? <Text className="text-lg">{name}</Text> : null}
         <View className={className}>
-          <TextInput className="flex flex-grow" editable multiline={multiline} onChangeText={onChange} value={value} />
+          <TextInput
+            className="flex flex-grow"
+            editable
+            keyboardType={keyboardType}
+            multiline={multiline}
+            onChangeText={onChange}
+            value={value}
+          />
         </View>
       </View>
     </KeyboardAvoidingView>

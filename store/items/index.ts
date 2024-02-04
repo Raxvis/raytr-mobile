@@ -15,13 +15,14 @@ export const itemsSlice = createSlice({
   initialState,
   reducers: {
     addItem: actions.addItem,
-    removeItem: actions.removeItem,
     clearItems: () => initialState,
+    removeItem: actions.removeItem,
     setItems: actions.setItems,
+    updateItem: actions.updateItem,
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { addItem, removeItem, clearItems, setItems } = itemsSlice.actions;
+export const { addItem, removeItem, clearItems, setItems, updateItem } = itemsSlice.actions;
 
 export default itemsSlice.reducer;

@@ -26,7 +26,7 @@ export type Item = {
   itemDescription?: string;
   itemCost?: number;
   overallRating?: number;
-  ratings: Rating[];
+  ratings?: Rating[];
 };
 
 export type Rating = {

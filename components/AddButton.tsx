@@ -1,16 +1,17 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { DocumentPlusIcon, FolderPlusIcon, PlusIcon, SquaresPlusIcon, XMarkIcon } from 'react-native-heroicons/outline';
-import { usePathname, router } from 'expo-router';
+import { useLocalSearchParams, usePathname, router } from 'expo-router';
 
 const AddButton = () => {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const params = useLocalSearchParams();
 
   const navigate = useCallback(
     (route) => {
       setOpen(false);
-      router.navigate(route);
+      router.push({ pathname: route, params });
     },
     [setOpen],
   );

@@ -20,6 +20,8 @@ import {
 import { useCallback } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+SplashScreen.preventAutoHideAsync();
+
 const App = () => {
   const [fontsLoaded] = useFonts({
     Poppins_100Thin,

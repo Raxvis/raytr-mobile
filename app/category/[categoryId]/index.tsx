@@ -13,8 +13,8 @@ const Category = () => {
   const { categories } = useSelector((state: RootState) => state.categories);
   const { items } = useSelector((state: RootState) => state.items);
 
-  const category = useMemo(() => categories.find((category) => category.categoryId === categoryId), []);
-  const categoryItems = useMemo(() => getItemsWithRatingsByCategory(category, items), [category]);
+  const category = useMemo(() => categories.find((category) => category.categoryId === categoryId), [categoryId]);
+  const categoryItems = useMemo(() => getItemsWithRatingsByCategory(category, items), [category, items]);
 
   if (!category) {
     return null;
