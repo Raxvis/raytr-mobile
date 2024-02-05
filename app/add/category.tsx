@@ -1,6 +1,6 @@
 import { Category } from '../../types';
 import uuid from '../../utils/uuid';
-import EditCategory from '../../components/form/EditCategory';
+import CategoryForm from '../../components/form/CategoryForm';
 
 const getNewCategory = (): Category => ({
   categoryId: uuid(),
@@ -9,8 +9,8 @@ const getNewCategory = (): Category => ({
   ratingSchema: [],
 });
 
-const AddCategoryPage = () => {
-  return <EditCategory initialState={getNewCategory()} />;
+const AddCategory = () => {
+  return <CategoryForm initialState={getNewCategory()} />;
 };
 
-export default AddCategoryPage;
+export default AddCategory;

@@ -47,7 +47,7 @@ const Category = () => {
         />
       ) : (
         <Text className="text-md">
-          Looks like you don't have any items yet. You can add them by press the plus at the bottom of the screen
+          Looks like you don't have any ratings yet. You can add them by press the plus at the bottom of the screen
         </Text>
       )}
     </View>

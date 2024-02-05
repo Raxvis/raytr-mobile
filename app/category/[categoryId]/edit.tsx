@@ -2,9 +2,9 @@ import { RootState } from '../../../store/configureStore';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import EditCategory from '../../../components/form/EditCategory';
+import CategoryForm from '../../../components/form/CategoryForm';
 
-const EditCategoryPage = () => {
+const EditCategory = () => {
   const { categoryId } = useLocalSearchParams();
   const { categories } = useSelector((state: RootState) => state.categories);
   const category = useMemo(() => categories.find((category) => category.categoryId === categoryId), []);
@@ -13,7 +13,7 @@ const EditCategoryPage = () => {
     return null;
   }
 
-  return <EditCategory edit initialState={category} />;
+  return <CategoryForm edit initialState={category} />;
 };
 
-export default EditCategoryPage;
+export default EditCategory;
