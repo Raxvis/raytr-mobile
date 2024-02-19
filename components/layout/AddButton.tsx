@@ -1,19 +1,20 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { DocumentPlusIcon, FolderPlusIcon, PlusIcon, SquaresPlusIcon, XMarkIcon } from 'react-native-heroicons/outline';
-import { useLocalSearchParams, usePathname, router } from 'expo-router';
+import { useLocalSearchParams, useGlobalSearchParams, usePathname, useRouter } from 'expo-router';
 
 const AddButton = () => {
+  const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const params = useLocalSearchParams();
+  const params = useGlobalSearchParams();
 
   const navigate = useCallback(
     (route) => {
       setOpen(false);
       router.push({ pathname: route, params });
     },
-    [setOpen],
+    [setOpen, params],
   );
 
   if (pathname.includes('add/') || pathname.includes('/edit')) {
