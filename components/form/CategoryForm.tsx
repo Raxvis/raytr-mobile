@@ -11,6 +11,7 @@ import EditLayout from '../layout/EditLayout';
 import IconButton from '../ui/IconButton';
 import TextInput from '../ui/TextInput';
 import uuid from '../../utils/uuid';
+import Header from '../ui/Header';
 
 const getNewRatingSchema = (): RatingSchema => ({
   ratingSchemaId: uuid(),
@@ -101,9 +102,7 @@ const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
     <EditLayout>
       <View className="flex flex-grow">
         <View className="flex">
-          <View className="mb-4 flex border-b border-gray-900 pb-4">
-            <Text className="text-2xl ">Add Category</Text>
-          </View>
+          <Header title="Add Category" />
           <TextInput name="Category Name" onChange={updateValue('categoryName')} value={state.categoryName} />
           <TextInput
             multiline

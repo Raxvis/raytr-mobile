@@ -10,6 +10,7 @@ import uuid from '../../utils/uuid';
 import * as ImagePicker from 'expo-image-picker';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import EditLayout from '../layout/EditLayout';
+import Header from '../ui/Header';
 
 const reducer = (state, { payload, type }: { payload?: any; type: string }) => {
   switch (type) {
@@ -66,9 +67,7 @@ const ItemForm = ({ edit, initialState }: EditCategoryProps) => {
     <EditLayout>
       <View className="flex flex-grow">
         <View className="flex">
-          <View className="mb-4 flex border-b border-gray-900 pb-4">
-            <Text className="text-2xl ">Add Item</Text>
-          </View>
+          <Header title="Add Item" />
           <TextInput name="Item Name" onChange={updateValue('itemName')} value={state.itemName} />
           <TextInput
             multiline

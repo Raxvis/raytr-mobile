@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import CategoryListItem from '../components/CategoryListItem';
 import getItemsByCategory from '../utils/getItemsByCategory';
+import Header from '../components/ui/Header';
 
 const Categories = () => {
   const { categories } = useSelector((state: RootState) => state.categories);
@@ -20,10 +21,7 @@ const Categories = () => {
 
   return (
     <View className="flex h-full p-2">
-      <View className="mb-8 flex border-b border-gray-900 pb-4">
-        <Text className="text-2xl">Categories</Text>
-        <Text className="text-lg">A list of all your categories</Text>
-      </View>
+      <Header title="Categories" subtitle="A list of all your categories" />
       {coupledCategories.length > 0 ? (
         <FlatList
           data={coupledCategories}

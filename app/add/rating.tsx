@@ -1,10 +1,13 @@
 import { View, Text } from 'react-native';
+import { Link } from 'expo-router';
 import { Stack, useLocalSearchParams, useGlobalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import Dropdown from '../../components/ui/Dropdown';
 import { useSelector } from 'react-redux';
 import EditLayout from '../../components/layout/EditLayout';
 import { RootState } from '../../store/configureStore';
+import TextInput from '../../components/ui/TextInput';
+import Header from '../../components/ui/Header';
 
 const AddRating = () => {
   const params = useLocalSearchParams();
@@ -44,12 +47,28 @@ const AddRating = () => {
     [categoryId, categories],
   );
 
+  const [name, setName] = useState('');
+
   return (
     <EditLayout>
+      <Header title="Add a Rating" />
+      <Text className="text-lg">Category</Text>
       <Dropdown value={categoryId} onChange={setCategoryId} options={categoryOptions} />
-      <Text>Don't see your Category? Add Category</Text>
+      <Text className="text-sm italic text-gray-600">
+        Don't see your Category?{' '}
+        <Link className="underline" href="/add/category">
+          Add a Category
+        </Link>
+      </Text>
+      <Text className="text-lg">Item</Text>
       <Dropdown value={itemId} onChange={setItemId} options={itemOptions} />
-      <Text>Don't see your Item? Add Item</Text>
+      <Text className="text-sm italic text-gray-600">
+        Don't see your Item?{' '}
+        <Link className="underline" href="/add/item">
+          Add a Item
+        </Link>
+      </Text>
+      {/* <TextInput name="Name" onChange={setName} value={name} /> */}
     </EditLayout>
   );
 };

@@ -7,6 +7,7 @@ import { View, Text, FlatList } from 'react-native';
 import CategoryItem from '../../../components/CategoryItem';
 import getItemsWithRatingsByCategory from '../../../utils/getItemsWithRatingsByCategory';
 import NavButton from '../../../components/ui/NavButton';
+import Header from '../../../components/ui/Header';
 
 const Category = () => {
   const { categoryId } = useLocalSearchParams();
@@ -34,10 +35,7 @@ const Category = () => {
           ),
         }}
       />
-      <View className="mb-8 flex border-b border-gray-900 pb-4">
-        <Text className="text-2xl ">{category.categoryName}</Text>
-        <Text className="text-md">{category.categoryDescription}</Text>
-      </View>
+      <Header title={category.categoryName} subtitle={category.categoryDescription} />
       {categoryItems.length > 0 ? (
         <FlatList
           data={categoryItems}
