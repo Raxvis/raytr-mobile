@@ -1,3 +1,8 @@
+- Save Rating
+- View Items (edit / delete)
+- View Category Items
+- View Category Item Ratings
+
 ```
 data: {
   categories: [{

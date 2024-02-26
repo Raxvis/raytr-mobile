@@ -7,9 +7,10 @@ import { useSelector } from 'react-redux';
 import EditLayout from '../../components/layout/EditLayout';
 import { RootState } from '../../store/configureStore';
 import Header from '../../components/ui/Header';
-import { RatingSchema } from '../../types';
+import { Rating, RatingSchema, Score } from '../../types';
 import Slider from '@react-native-community/slider';
 import Button from '../../components/ui/Button';
+import TextInput from '../../components/ui/TextInput';
 
 const AddRating = () => {
   const params = useLocalSearchParams();
@@ -44,10 +45,12 @@ const AddRating = () => {
     }
   }, [params]);
 
-  const { ratingSchema }: { ratingSchema?: RatingSchema[] } = useMemo(
-    () => categories.find((category) => category.categoryId === categoryId) || {},
-    [categoryId, categories],
+  const item = useMemo(() => (itemId ? items.find((item) => itemId === item.itemId) : undefined), [items, itemId]);
+  const category = useMemo(
+    () => (categoryId ? categories.find((category) => categoryId === category.categoryId) : undefined),
+    [categories, categoryId],
   );
+  const ratingSchema = useMemo(() => (category ? category.ratingSchema : undefined), [category]);
 
   const [rating, setRating] = useState({});
   const updateRating = useCallback(
@@ -58,6 +61,16 @@ const AddRating = () => {
   );
 
   const saveRating = useCallback(() => {
+    const newRating: Rating = {
+      categoryId,
+      itemCost: 0,
+      ratingTotal: 0,
+      ratingNotes: '',
+      ratingTime: new Date(),
+      scores: Object.keys(rating).map(
+        (ratingSchemaId): Score => ({ ratingSchemaId, scoreValue: rating[ratingSchemaId] }),
+      ),
+    };
     // TODO - let's save
     console.log(rating);
   }, [rating]);
@@ -87,6 +100,8 @@ const AddRating = () => {
           </View>
           {categoryId && itemId ? (
             <View className="">
+              <TextInput name="Item Cost" value={`${item?.itemCost}`} />
+              <TextInput name="Rating Notes" multiline value={``} />
               <View className="">
                 {ratingSchema.map((schema: RatingSchema) => (
                   <View className="mt-2" key={schema.ratingSchemaId}>
