@@ -24,7 +24,7 @@ const Button = ({ classNames, color, onPress, text }: ButtonProps) => {
       className={classnames('mt-4 flex flex-row items-center justify-center rounded p-2', getColor(color), classNames)}
       onPress={onPress}
     >
-      <Text className="text-white">{text}</Text>
+      <Text className="text-lg text-white">{text}</Text>
     </TouchableOpacity>
   );
 };

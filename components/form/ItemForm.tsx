@@ -66,8 +66,8 @@ const ItemForm = ({ edit, initialState }: EditCategoryProps) => {
   return (
     <EditLayout>
       <View className="flex flex-grow">
-        <View className="flex">
-          <Header title="Add Item" />
+        <Header title="Add Item" />
+        <View className="flex p-2">
           <TextInput name="Item Name" onChange={updateValue('itemName')} value={state.itemName} />
           <TextInput
             multiline
@@ -101,7 +101,7 @@ const ItemForm = ({ edit, initialState }: EditCategoryProps) => {
           </View>
         </View>
       </View>
-      <View className="ios:mb-12 android:mb-4 flex">
+      <View className="flex p-2">
         {edit ? <Button onPress={saveItem} text="Save Item" /> : <Button onPress={saveItem} text="Add Item" />}
       </View>
     </EditLayout>

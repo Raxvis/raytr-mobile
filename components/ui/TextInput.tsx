@@ -14,7 +14,7 @@ type TextInputProps = {
 
 const TextInputField = ({ classNames, onChange, name, multiline, value, keyboardType }: TextInputProps) => {
   const textInputClassName = classnames(
-    'bg-white rounded p-3 shadow flex flex-row rounded p-2 justify-center items-top',
+    'bg-white rounded p-3 border border-gray-300 flex flex-row rounded p-2 justify-center items-top',
     multiline ? 'min-h-[100px] max-h-[300px]' : 'h-[50px]',
   );
 
@@ -23,7 +23,7 @@ const TextInputField = ({ classNames, onChange, name, multiline, value, keyboard
       {name ? <Text className="text-lg">{name}</Text> : null}
       <View className={textInputClassName}>
         <TextInput
-          className="flex flex-grow text-[16px]"
+          className="flex flex-grow text-lg leading-5"
           editable
           keyboardType={keyboardType}
           multiline={multiline}

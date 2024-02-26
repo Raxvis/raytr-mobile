@@ -20,7 +20,7 @@ const Categories = () => {
   );
 
   return (
-    <View className="flex h-full p-2">
+    <View className="flex h-full divide-y divide-gray-100">
       <Header title="Categories" subtitle="A list of all your categories" />
       {coupledCategories.length > 0 ? (
         <FlatList

@@ -24,7 +24,7 @@ const IconButton = ({ classNames, onPress, Icon, color }: IconButtonProps) => (
     className={classnames('flex items-center justify-center rounded p-2', getColor(color), classNames)}
     onPress={onPress}
   >
-    <Icon color="white" size={20} />
+    <Icon color="white" size={30} />
   </TouchableOpacity>
 );
 

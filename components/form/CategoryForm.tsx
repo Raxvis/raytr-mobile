@@ -101,8 +101,8 @@ const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
   return (
     <EditLayout>
       <View className="flex flex-grow">
-        <View className="flex">
-          <Header title="Add Category" />
+        <Header title="Add Category" />
+        <View className="flex p-2">
           <TextInput name="Category Name" onChange={updateValue('categoryName')} value={state.categoryName} />
           <TextInput
             multiline
@@ -126,7 +126,7 @@ const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
           <Button onPress={addRatingMetric} text="Add Rating Metric" />
         </View>
       </View>
-      <View className="ios:mb-12 android:mb-4 mt-8 flex space-x-2">
+      <View className="mt-8 flex space-x-2 p-2">
         {edit ? (
           <Button onPress={saveCategory} text="Save Category" />
         ) : (

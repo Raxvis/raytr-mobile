@@ -22,7 +22,7 @@ const Category = () => {
   }
 
   return (
-    <View className="flex h-full p-2">
+    <View className="flex h-full">
       <Stack.Screen
         options={{
           headerLeft: () => <NavButton onPress={() => router.navigate(`/`)} isBack text="Back" color="white" />,

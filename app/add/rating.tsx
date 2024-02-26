@@ -1,13 +1,15 @@
 import { View, Text } from 'react-native';
 import { Link } from 'expo-router';
 import { Stack, useLocalSearchParams, useGlobalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Dropdown from '../../components/ui/Dropdown';
 import { useSelector } from 'react-redux';
 import EditLayout from '../../components/layout/EditLayout';
 import { RootState } from '../../store/configureStore';
-import TextInput from '../../components/ui/TextInput';
 import Header from '../../components/ui/Header';
+import { RatingSchema } from '../../types';
+import Slider from '@react-native-community/slider';
+import Button from '../../components/ui/Button';
 
 const AddRating = () => {
   const params = useLocalSearchParams();
@@ -42,33 +44,75 @@ const AddRating = () => {
     }
   }, [params]);
 
-  const schema = useMemo(
-    () => categories.find((category) => category.categoryId === categoryId),
+  const { ratingSchema }: { ratingSchema?: RatingSchema[] } = useMemo(
+    () => categories.find((category) => category.categoryId === categoryId) || {},
     [categoryId, categories],
   );
 
-  const [name, setName] = useState('');
+  const [rating, setRating] = useState({});
+  const updateRating = useCallback(
+    (ratingSchemaId, value) => {
+      setRating({ ...rating, [ratingSchemaId]: Math.floor(value) });
+    },
+    [rating],
+  );
+
+  const saveRating = useCallback(() => {
+    // TODO - let's save
+    console.log(rating);
+  }, [rating]);
 
   return (
     <EditLayout>
-      <Header title="Add a Rating" />
-      <Text className="text-lg">Category</Text>
-      <Dropdown value={categoryId} onChange={setCategoryId} options={categoryOptions} />
-      <Text className="text-sm italic text-gray-600">
-        Don't see your Category?{' '}
-        <Link className="underline" href="/add/category">
-          Add a Category
-        </Link>
-      </Text>
-      <Text className="text-lg">Item</Text>
-      <Dropdown value={itemId} onChange={setItemId} options={itemOptions} />
-      <Text className="text-sm italic text-gray-600">
-        Don't see your Item?{' '}
-        <Link className="underline" href="/add/item">
-          Add a Item
-        </Link>
-      </Text>
-      {/* <TextInput name="Name" onChange={setName} value={name} /> */}
+      <View className="flex flex-grow">
+        <Header title="Add a Rating" />
+        <View className="flex p-2">
+          <View className="mb-2">
+            <Dropdown value={categoryId} name="Category" onChange={setCategoryId} options={categoryOptions} />
+            <Text className="text-sm italic text-gray-600">
+              Don't see your Category?{' '}
+              <Link className="underline" href="/add/category">
+                Add a Category
+              </Link>
+            </Text>
+          </View>
+          <View className="mb-2">
+            <Dropdown value={itemId} name="Item" onChange={setItemId} options={itemOptions} />
+            <Text className="text-sm italic text-gray-600">
+              Don't see your Item?{' '}
+              <Link className="underline" href="/add/item">
+                Add a Item
+              </Link>
+            </Text>
+          </View>
+          {categoryId && itemId ? (
+            <View className="">
+              <View className="">
+                {ratingSchema.map((schema: RatingSchema) => (
+                  <View className="mt-2" key={schema.ratingSchemaId}>
+                    <View className="flex flex-row justify-between">
+                      <Text className="text-lg">{schema.ratingSchemaName}</Text>
+                      <Text className="">{rating[schema.ratingSchemaId]} Rating</Text>
+                    </View>
+                    <Slider
+                      style={{}}
+                      minimumValue={1}
+                      maximumValue={10}
+                      minimumTrackTintColor="#000000"
+                      maximumTrackTintColor="#FFFFFF"
+                      onValueChange={(value) => updateRating(schema.ratingSchemaId, value)}
+                      value={rating[schema.ratingSchemaId]}
+                    />
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
+        </View>
+      </View>
+      <View className="flex p-2">
+        <Button onPress={saveRating} text="Save Rating" />
+      </View>
     </EditLayout>
   );
 };
