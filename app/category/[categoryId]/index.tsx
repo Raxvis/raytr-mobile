@@ -44,9 +44,11 @@ const Category = () => {
           renderItem={({ item }) => <CategoryItem category={category} item={item} />}
         />
       ) : (
-        <Text className="text-md">
-          Looks like you don't have any ratings yet. You can add them by press the plus at the bottom of the screen
-        </Text>
+        <View className="p-2">
+          <Text className="text-lg">
+            Looks like you don't have any ratings yet. You can add them by press the plus at the bottom of the screen
+          </Text>
+        </View>
       )}
     </View>
   );

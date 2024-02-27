@@ -30,9 +30,11 @@ const Categories = () => {
           renderItem={({ item }) => <CategoryListItem category={item} />}
         />
       ) : (
-        <Text className="text-md">
-          Looks like you don't have any categories yet. You can add them by press the plus at the bottom of the screen
-        </Text>
+        <View className="p-2">
+          <Text className="text-lg">
+            Looks like you don't have any categories yet. You can add them by press the plus at the bottom of the screen
+          </Text>
+        </View>
       )}
     </View>
   );

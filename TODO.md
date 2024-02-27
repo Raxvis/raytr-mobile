@@ -22,16 +22,17 @@ data: {
     itemDescription: string,
     itemCost: float,
     overallRating: computed,
-    ratings: [{
-      categoryId: guid,
-      itemCost: float,
-      ratingTotal: computed,
-      ratingNotes: string,
-      ratingTime: datetime,
-      scores: [{
-        ratingSchemaId: guid,
-        scoreValue: int,
-      }]
+  }],
+  ratings: [{
+    categoryId: guid,
+    itemId: guid,
+    itemCost: float,
+    ratingTotal: computed,
+    ratingNotes: string,
+    ratingTime: datetime,
+    scores: [{
+      ratingSchemaId: guid,
+      scoreValue: int,
     }]
   }]
 }

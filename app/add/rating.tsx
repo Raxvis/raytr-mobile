@@ -1,9 +1,9 @@
 import { View, Text } from 'react-native';
-import { Link } from 'expo-router';
-import { Stack, useLocalSearchParams, useGlobalSearchParams, useRouter } from 'expo-router';
+import { Link, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Dropdown from '../../components/ui/Dropdown';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import EditLayout from '../../components/layout/EditLayout';
 import { RootState } from '../../store/configureStore';
 import Header from '../../components/ui/Header';
@@ -11,69 +11,63 @@ import { Rating, RatingSchema, Score } from '../../types';
 import Slider from '@react-native-community/slider';
 import Button from '../../components/ui/Button';
 import TextInput from '../../components/ui/TextInput';
+import uuid from '../../utils/uuid';
+import { addRating } from '../../store/ratings';
+
+const createOptions = (records, labelKey, valueKey) =>
+  records.map((record) => ({
+    label: record[labelKey],
+    value: record[valueKey],
+  }));
+
+const find = (records, key, match) => (match ? records.find((record) => record[key] === match) : undefined);
+
+const getNewRating = (): Rating => ({
+  ratingId: uuid(),
+  itemId: '',
+  categoryId: '',
+  ratingTime: new Date(),
+});
 
 const AddRating = () => {
+  const dispatch = useDispatch();
   const params = useLocalSearchParams();
-  const [categoryId, setCategoryId] = useState(undefined);
-  const [itemId, setItemId] = useState(undefined);
+  const [rating, setRating] = useState<Rating>(getNewRating());
+  const [scores, setScores] = useState({});
+
   const { categories } = useSelector((state: RootState) => state.categories);
   const { items } = useSelector((state: RootState) => state.items);
 
-  const categoryOptions = useMemo(
-    () =>
-      categories.map(({ categoryId, categoryName }) => ({
-        label: categoryName,
-        value: categoryId,
-      })),
-    [categories],
-  );
-  const itemOptions = useMemo(
-    () =>
-      items.map(({ itemId, itemName }) => ({
-        label: itemName,
-        value: itemId,
-      })),
-    [items],
-  );
+  const categoryOptions = useMemo(() => createOptions(categories, 'categoryName', 'categoryId'), [categories]);
+  const itemOptions = useMemo(() => createOptions(items, 'itemName', 'itemId'), [items]);
+
+  const category = useMemo(() => find(categories, 'categoryId', rating.categoryId), [categories, rating.categoryId]);
+  const item = useMemo(() => find(items, 'itemId', rating.itemId), [items, rating.itemId]);
 
   useEffect(() => {
-    if (params.categoryId) {
-      setCategoryId(params.categoryId);
-    }
-    if (params.itemId) {
-      setItemId(params.itemId);
+    if (params.categoryId || params.itemId) {
+      setRating((r) => ({ ...r, ...params }));
     }
   }, [params]);
 
-  const item = useMemo(() => (itemId ? items.find((item) => itemId === item.itemId) : undefined), [items, itemId]);
-  const category = useMemo(
-    () => (categoryId ? categories.find((category) => categoryId === category.categoryId) : undefined),
-    [categories, categoryId],
-  );
-  const ratingSchema = useMemo(() => (category ? category.ratingSchema : undefined), [category]);
-
-  const [rating, setRating] = useState({});
-  const updateRating = useCallback(
-    (ratingSchemaId, value) => {
-      setRating({ ...rating, [ratingSchemaId]: Math.floor(value) });
-    },
-    [rating],
-  );
+  const updateRating = (key) => (value) => setRating((r) => ({ ...r, [key]: value }));
+  const updateScores = (key) => (value) => setScores((s) => ({ ...s, [key]: Math.round(value) }));
 
   const saveRating = useCallback(() => {
-    const newRating: Rating = {
-      categoryId,
-      itemCost: 0,
-      ratingTotal: 0,
-      ratingNotes: '',
-      ratingTime: new Date(),
-      scores: Object.keys(rating).map(
-        (ratingSchemaId): Score => ({ ratingSchemaId, scoreValue: rating[ratingSchemaId] }),
-      ),
-    };
-    // TODO - let's save
-    console.log(rating);
-  }, [rating]);
+    const parsedScores = Object.keys(scores).map(
+      (ratingSchemaId): Score => ({ ratingSchemaId, scoreValue: scores[ratingSchemaId] }),
+    );
+    const ratingTotal = parsedScores.reduce((result, score) => result + score.scoreValue, 0) / parsedScores.length;
+
+    dispatch(
+      addRating({
+        ...rating,
+        ratingTotal: Math.round(ratingTotal * 100) / 100,
+        scores: parsedScores,
+      }),
+    );
+    router.replace(`/category/${rating.categoryId}/item/${rating.itemId}`);
+  }, [rating, scores]);
 
   return (
     <EditLayout>
@@ -81,7 +75,12 @@ const AddRating = () => {
         <Header title="Add a Rating" />
         <View className="flex p-2">
           <View className="mb-2">
-            <Dropdown value={categoryId} name="Category" onChange={setCategoryId} options={categoryOptions} />
+            <Dropdown
+              value={rating.categoryId}
+              name="Category"
+              onChange={updateRating('categoryId')}
+              options={categoryOptions}
+            />
             <Text className="text-sm italic text-gray-600">
               Don't see your Category?{' '}
               <Link className="underline" href="/add/category">
@@ -90,7 +89,7 @@ const AddRating = () => {
             </Text>
           </View>
           <View className="mb-2">
-            <Dropdown value={itemId} name="Item" onChange={setItemId} options={itemOptions} />
+            <Dropdown value={rating.itemId} name="Item" onChange={updateRating('itemId')} options={itemOptions} />
             <Text className="text-sm italic text-gray-600">
               Don't see your Item?{' '}
               <Link className="underline" href="/add/item">
@@ -98,16 +97,25 @@ const AddRating = () => {
               </Link>
             </Text>
           </View>
-          {categoryId && itemId ? (
+          {rating.categoryId && rating.itemId ? (
             <View className="">
-              <TextInput name="Item Cost" value={`${item?.itemCost}`} />
-              <TextInput name="Rating Notes" multiline value={``} />
+              <TextInput
+                name="Item Cost"
+                onChange={updateRating('itemCost')}
+                value={rating?.itemCost || item?.itemCost}
+              />
+              <TextInput
+                name="Rating Notes"
+                multiline
+                onChange={updateRating('ratingNotes')}
+                value={rating?.ratingNotes}
+              />
               <View className="">
-                {ratingSchema.map((schema: RatingSchema) => (
+                {category.ratingSchema.map((schema: RatingSchema) => (
                   <View className="mt-2" key={schema.ratingSchemaId}>
                     <View className="flex flex-row justify-between">
                       <Text className="text-lg">{schema.ratingSchemaName}</Text>
-                      <Text className="">{rating[schema.ratingSchemaId]} Rating</Text>
+                      <Text className="">{scores?.[schema.ratingSchemaId]} Rating</Text>
                     </View>
                     <Slider
                       style={{}}
@@ -115,8 +123,8 @@ const AddRating = () => {
                       maximumValue={10}
                       minimumTrackTintColor="#000000"
                       maximumTrackTintColor="#FFFFFF"
-                      onValueChange={(value) => updateRating(schema.ratingSchemaId, value)}
-                      value={rating[schema.ratingSchemaId]}
+                      onValueChange={updateScores(schema.ratingSchemaId)}
+                      value={scores?.[schema.ratingSchemaId]}
                     />
                   </View>
                 ))}
