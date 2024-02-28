@@ -1,30 +1,32 @@
 import { FlatList, Text, View } from 'react-native';
-import { RootState } from '../store/configureStore';
-import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
 import CategoryListItem from '../components/CategoryListItem';
-import getItemsByCategory from '../utils/getItemsByCategory';
 import Header from '../components/ui/Header';
+import { useSQLiteContext } from 'expo-sqlite/next';
+import knex from '../db';
+import useAsyncEffect from '../hooks/useAsyncEffect';
+import { useNavigation } from 'expo-router';
 
 const Categories = () => {
-  const { categories } = useSelector((state: RootState) => state.categories);
-  const { items } = useSelector((state: RootState) => state.items);
+  const navigation = useNavigation();
+  const [categories, setCategories] = useState([]);
 
-  const coupledCategories = useMemo(
-    () =>
-      categories.map((category) => ({
-        ...category,
-        items: getItemsByCategory(category, items),
-      })),
-    [categories, items],
-  );
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      const results = await knex('category');
+
+      setCategories(results);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <View className="flex h-full divide-y divide-gray-100">
       <Header title="Categories" subtitle="A list of all your categories" />
-      {coupledCategories.length > 0 ? (
+      {categories.length > 0 ? (
         <FlatList
-          data={coupledCategories}
+          data={categories}
           className="flex flex-col"
           keyExtractor={(item) => item.categoryId}
           renderItem={({ item }) => <CategoryListItem category={item} />}

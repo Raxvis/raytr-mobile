@@ -9,14 +9,14 @@ export type Category = {
   categoryName: string;
   categoryDescription?: string;
   ratingSchema?: RatingSchema[];
-  items?: Item[];
 };
 
 export type RatingSchema = {
+  categoryId: string;
   ratingSchemaId: string;
   ratingSchemaName: string;
-  ratingSchemaType: string;
-  ratingSchemaWeight: number;
+  // ratingSchemaType: string;
+  // ratingSchemaWeight: number;
 };
 
 export type Item = {
@@ -36,11 +36,10 @@ export type Rating = {
   ratingTotal?: number;
   ratingNotes?: string;
   ratingTime: Date;
-  scores?: Score[];
 };
 
 export type Score = {
+  ratingId: string;
   ratingSchemaId: string;
-  ratingSchema?: RatingSchema;
   scoreValue: number;
 };

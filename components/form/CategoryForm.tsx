@@ -1,10 +1,7 @@
-import { addCategory, removeCategory, updateCategory } from '../../store/categories';
 import { Category, RatingSchema } from '../../types';
-import { RootState } from '../../store/configureStore';
 import { TrashIcon } from 'react-native-heroicons/outline';
-import { useCallback, useEffect, useMemo, useReducer } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useCallback, useReducer } from 'react';
+import { router } from 'expo-router';
 import { View, Text } from 'react-native';
 import Button from '../ui/Button';
 import EditLayout from '../layout/EditLayout';
@@ -12,12 +9,14 @@ import IconButton from '../ui/IconButton';
 import TextInput from '../ui/TextInput';
 import uuid from '../../utils/uuid';
 import Header from '../ui/Header';
+import useAsyncCallback from '../../hooks/useAsyncCallback';
+import upsertCategory from '../../services/category/upsertCategory';
+import deleteCategory from '../../services/category/deleteCategory';
 
 const getNewRatingSchema = (): RatingSchema => ({
+  categoryId: '',
   ratingSchemaId: uuid(),
   ratingSchemaName: '',
-  ratingSchemaType: 'SLIDER',
-  ratingSchemaWeight: 5,
 });
 
 const reducer = (state, { payload, type }: { payload?: any; type: string }) => {
@@ -51,13 +50,7 @@ type EditCategoryProps = {
 };
 
 const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
-  const reduxDispatch = useDispatch();
-  const [state, dispatch] = useReducer(reducer, {});
-  const { categoryId } = useLocalSearchParams();
-  const { categories } = useSelector((state: RootState) => state.categories);
-
-  const category = useMemo(() => categories.find((category) => category.categoryId === categoryId), []);
-
+  const [state, dispatch] = useReducer(reducer, initialState);
   const updateValue = (key) => (value) => dispatch({ type: 'UPDATE', payload: { [key]: value } });
   const updateRatingSchema = (ratingSchemaId, key) => (value) =>
     dispatch({
@@ -68,10 +61,6 @@ const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
       },
     });
 
-  useEffect(() => {
-    dispatch({ type: 'SET', payload: initialState });
-  }, [category]);
-
   const addRatingMetric = useCallback(() => {
     dispatch({ type: 'ADD_METRIC' });
   }, []);
@@ -80,21 +69,20 @@ const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
     dispatch({ type: 'REMOVE_METRIC', payload: ratingSchemaId });
   }, []);
 
-  const saveCategory = useCallback(() => {
-    if (edit) {
-      reduxDispatch(updateCategory(state));
-    } else {
-      reduxDispatch(addCategory(state));
-    }
+  const [save, { loading: saving }] = useAsyncCallback(async () => {
+    await upsertCategory(state);
+
     router.replace(`/category/${state.categoryId}`);
   }, [state]);
 
-  const deleteCategory = useCallback(() => {
-    reduxDispatch(removeCategory(state.categoryId));
+  const [del, { loading: deleting }] = useAsyncCallback(async () => {
+    await deleteCategory(state);
+
     while (router.canGoBack()) {
       // Pop from stack until one element is left
       router.back();
     }
+
     router.replace(`/`);
   }, [state]);
 
@@ -128,11 +116,11 @@ const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
       </View>
       <View className="mt-8 flex space-x-2 p-2">
         {edit ? (
-          <Button onPress={saveCategory} text="Save Category" />
+          <Button disabled={saving} onPress={save} text="Save Category" />
         ) : (
-          <Button onPress={saveCategory} text="Add Category" />
+          <Button disabled={saving} onPress={save} text="Add Category" />
         )}
-        {edit ? <Button color="red" onPress={deleteCategory} text="Delete Category" /> : null}
+        {edit ? <Button disabled={deleting} color="red" onPress={del} text="Delete Category" /> : null}
       </View>
     </EditLayout>
   );

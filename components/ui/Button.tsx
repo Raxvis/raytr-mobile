@@ -4,12 +4,21 @@ import { View, Text, TouchableOpacity } from 'react-native';
 
 type ButtonProps = {
   classNames?: string;
+  disabled?: boolean;
   onPress: () => void;
   text: string;
   color?: string;
 };
 
-const getColor = (color) => {
+const getColor = (color, disabled) => {
+  if (disabled) {
+    switch (color) {
+      case 'red':
+        return 'bg-red-400';
+      default:
+        return 'bg-gray-400';
+    }
+  }
   switch (color) {
     case 'red':
       return 'bg-red-900';
@@ -18,11 +27,15 @@ const getColor = (color) => {
   }
 };
 
-const Button = ({ classNames, color, onPress, text }: ButtonProps) => {
+const Button = ({ classNames, color, disabled, onPress, text }: ButtonProps) => {
   return (
     <TouchableOpacity
-      className={classnames('mt-4 flex flex-row items-center justify-center rounded p-2', getColor(color), classNames)}
-      onPress={onPress}
+      className={classnames(
+        'mt-4 flex flex-row items-center justify-center rounded p-2',
+        getColor(color, disabled),
+        classNames,
+      )}
+      onPress={disabled ? () => {} : onPress}
     >
       <Text className="text-lg text-white">{text}</Text>
     </TouchableOpacity>

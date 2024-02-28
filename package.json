@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@expo-google-fonts/poppins": "^0.2.3",
+    "@expo/knex-expo-sqlite-dialect": "^0.0.1",
     "@react-native-async-storage/async-storage": "^1.21.0",
     "@react-native-community/slider": "^4.5.0",
     "@reduxjs/toolkit": "^2.1.0",
@@ -12,7 +13,9 @@
     "expo-linking": "~6.2.2",
     "expo-router": "~3.4.6",
     "expo-splash-screen": "^0.26.4",
+    "expo-sqlite": "~13.2.2",
     "expo-status-bar": "~1.11.1",
+    "knex": "^3.1.0",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
     "react-native": "0.73.2",

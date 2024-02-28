@@ -2,20 +2,29 @@ import { Cog6ToothIcon } from 'react-native-heroicons/outline';
 import { RootState } from '../../../store/configureStore';
 import { Stack, useLocalSearchParams, router } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import CategoryItem from '../../../components/CategoryItem';
 import getItemsWithRatingsByCategory from '../../../utils/getItemsWithRatingsByCategory';
 import NavButton from '../../../components/ui/NavButton';
 import Header from '../../../components/ui/Header';
+import knex from '../../../db';
+import useAsyncEffect from '../../../hooks/useAsyncEffect';
+import { Category, Item } from '../../../types';
 
-const Category = () => {
+const CategoryPage = () => {
   const { categoryId } = useLocalSearchParams();
-  const { categories } = useSelector((state: RootState) => state.categories);
-  const { items } = useSelector((state: RootState) => state.items);
+  const [category, setCategory] = useState<Category | undefined>();
+  const [items, setItems] = useState<Item[]>([]);
 
-  const category = useMemo(() => categories.find((category) => category.categoryId === categoryId), [categoryId]);
-  const categoryItems = useMemo(() => getItemsWithRatingsByCategory(category, items), [category, items]);
+  useAsyncEffect(async () => {
+    const category: Category = await knex('category').where({ categoryId }).first();
+    const itemIds = await knex('rating').where({ categoryId }).pluck('itemId');
+    const items: Item[] = itemIds.length > 0 ? await knex('item').whereIn('itemId', itemIds) : [];
+
+    setCategory(category);
+    setItems(items);
+  }, [categoryId]);
 
   if (!category) {
     return null;
@@ -36,9 +45,9 @@ const Category = () => {
         }}
       />
       <Header title={category.categoryName} subtitle={category.categoryDescription} />
-      {categoryItems.length > 0 ? (
+      {items.length > 0 ? (
         <FlatList
-          data={categoryItems}
+          data={items}
           className="flex flex-col"
           keyExtractor={(item) => item.itemId}
           renderItem={({ item }) => <CategoryItem category={category} item={item} />}
@@ -54,4 +63,4 @@ const Category = () => {
   );
 };
 
-export default Category;
+export default CategoryPage;

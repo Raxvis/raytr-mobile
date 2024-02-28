@@ -1,13 +1,20 @@
-import { RootState } from '../../../store/configureStore';
 import { useLocalSearchParams } from 'expo-router';
-import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useState } from 'react';
 import CategoryForm from '../../../components/form/CategoryForm';
+import knex from '../../../db';
+import { Category } from '../../../types';
+import useAsyncEffect from '../../../hooks/useAsyncEffect';
 
 const EditCategory = () => {
   const { categoryId } = useLocalSearchParams();
-  const { categories } = useSelector((state: RootState) => state.categories);
-  const category = useMemo(() => categories.find((category) => category.categoryId === categoryId), []);
+  const [category, setCategory] = useState<Category | undefined>();
+
+  useAsyncEffect(async () => {
+    const category: Category = await knex('category').where({ categoryId }).first();
+    const ratingSchema = await knex('ratingSchema').where({ categoryId });
+
+    setCategory({ ...category, ratingSchema });
+  }, [categoryId]);
 
   if (!category) {
     return null;
