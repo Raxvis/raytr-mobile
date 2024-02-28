@@ -8,9 +8,9 @@ import CategoryItem from '../../../components/CategoryItem';
 import getItemsWithRatingsByCategory from '../../../utils/getItemsWithRatingsByCategory';
 import NavButton from '../../../components/ui/NavButton';
 import Header from '../../../components/ui/Header';
-import knex from '../../../db';
 import useAsyncEffect from '../../../hooks/useAsyncEffect';
 import { Category, Item } from '../../../types';
+import getCategoryWithItems from '../../../services/category/getCategoryWithItems';
 
 const CategoryPage = () => {
   const { categoryId } = useLocalSearchParams();
@@ -18,9 +18,7 @@ const CategoryPage = () => {
   const [items, setItems] = useState<Item[]>([]);
 
   useAsyncEffect(async () => {
-    const category: Category = await knex('category').where({ categoryId }).first();
-    const itemIds = await knex('rating').where({ categoryId }).pluck('itemId');
-    const items: Item[] = itemIds.length > 0 ? await knex('item').whereIn('itemId', itemIds) : [];
+    const { category, items } = await getCategoryWithItems(categoryId);
 
     setCategory(category);
     setItems(items);

@@ -2,10 +2,8 @@ import { FlatList, Text, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import CategoryListItem from '../components/CategoryListItem';
 import Header from '../components/ui/Header';
-import { useSQLiteContext } from 'expo-sqlite/next';
-import knex from '../db';
-import useAsyncEffect from '../hooks/useAsyncEffect';
 import { useNavigation } from 'expo-router';
+import getCategories from '../services/category/getCategories';
 
 const Categories = () => {
   const navigation = useNavigation();
@@ -13,7 +11,7 @@ const Categories = () => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      const results = await knex('category');
+      const results = await getCategories();
 
       setCategories(results);
     });

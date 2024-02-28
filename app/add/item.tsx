@@ -8,7 +8,6 @@ const getNewItem = (): Item => ({
   itemPicture: '',
   itemDescription: '',
   itemCost: undefined,
-  ratings: [],
 });
 
 const AddItem = () => {

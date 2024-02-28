@@ -1,19 +1,18 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import CategoryForm from '../../../components/form/CategoryForm';
-import knex from '../../../db';
 import { Category } from '../../../types';
 import useAsyncEffect from '../../../hooks/useAsyncEffect';
+import getCategoryWithRatingSchema from '../../../services/category/getCategoryWIthRatingSchema';
 
 const EditCategory = () => {
   const { categoryId } = useLocalSearchParams();
   const [category, setCategory] = useState<Category | undefined>();
 
   useAsyncEffect(async () => {
-    const category: Category = await knex('category').where({ categoryId }).first();
-    const ratingSchema = await knex('ratingSchema').where({ categoryId });
+    const result = await getCategoryWithRatingSchema(categoryId);
 
-    setCategory({ ...category, ratingSchema });
+    setCategory(result);
   }, [categoryId]);
 
   if (!category) {
