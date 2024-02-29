@@ -1,16 +1,15 @@
-import { addItem, updateItem } from '../../store/items';
 import { Item } from '../../types';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useReducer } from 'react';
-import { useDispatch } from 'react-redux';
-import { Image, View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { useEffect, useReducer } from 'react';
+import { Image, View, TouchableOpacity } from 'react-native';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
-import uuid from '../../utils/uuid';
 import * as ImagePicker from 'expo-image-picker';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import EditLayout from '../layout/EditLayout';
 import Header from '../ui/Header';
+import useAsyncCallback from '../../hooks/useAsyncCallback';
+import upsertItem from '../../services/item/upsertItem';
 
 const reducer = (state, { payload, type }: { payload?: any; type: string }) => {
   switch (type) {
@@ -29,8 +28,7 @@ type ItemFormProps = {
 };
 
 const ItemForm = ({ edit, initialState }: EditCategoryProps) => {
-  const reduxDispatch = useDispatch();
-  const [state, dispatch] = useReducer(reducer, {});
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const updateValue = (key) => (value) => dispatch({ type: 'UPDATE', payload: { [key]: value } });
 
@@ -38,12 +36,8 @@ const ItemForm = ({ edit, initialState }: EditCategoryProps) => {
     dispatch({ type: 'SET', payload: initialState });
   }, []);
 
-  const saveItem = useCallback(() => {
-    if (edit) {
-      reduxDispatch(updateItem(state));
-    } else {
-      reduxDispatch(addItem(state));
-    }
+  const [saveItem] = useAsyncCallback(async () => {
+    await upsertItem(state);
     router.back();
   }, [state]);
 

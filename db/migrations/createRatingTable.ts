@@ -9,7 +9,7 @@ const createRatingTable = async (db: SQLiteDatabase) => {
       itemCost REAL,
       ratingTotal REAL,
       ratingNotes TEXT,
-      ratingTime TEXT,
+      ratingTime INTEGER,
       FOREIGN KEY(categoryId) REFERENCES category(categoryId),
       FOREIGN KEY(itemId) REFERENCES item(itemId)
     );

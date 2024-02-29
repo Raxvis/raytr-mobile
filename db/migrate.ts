@@ -16,6 +16,8 @@ const migrate = async (db: SQLiteDatabase) => {
   if (currentDbVersion === 0) {
     await db.execAsync('PRAGMA journal_mode = WAL');
     await db.execAsync('PRAGMA foreign_keys = ON');
+    await db.execAsync('DROP TABLE IF EXISTS score');
+    await db.execAsync('DROP TABLE IF EXISTS rating');
 
     await createCategoryTable(db);
     await createRatingSchemaTable(db);

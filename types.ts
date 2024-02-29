@@ -26,6 +26,7 @@ export type Item = {
   itemDescription?: string;
   itemCost?: number;
   overallRating?: number;
+  ratings?: Rating[];
 };
 
 export type Rating = {
@@ -35,10 +36,11 @@ export type Rating = {
   itemCost?: number;
   ratingTotal?: number;
   ratingNotes?: string;
-  ratingTime: Date;
+  ratingTime: number;
 };
 
 export type Score = {
+  scoreId: string;
   ratingId: string;
   ratingSchemaId: string;
   scoreValue: number;

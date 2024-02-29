@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import CategoryListItem from '../components/CategoryListItem';
 import Header from '../components/ui/Header';
 import { useNavigation } from 'expo-router';
-import getCategories from '../services/category/getCategories';
+import getAllCategories from '../services/category/getAllCategories';
 
 const Categories = () => {
   const navigation = useNavigation();
@@ -11,7 +11,7 @@ const Categories = () => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      const results = await getCategories();
+      const results = await getAllCategories();
 
       setCategories(results);
     });

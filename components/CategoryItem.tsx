@@ -9,7 +9,7 @@ const CategoryItem = ({ category, item }: { category: Category; item: Item }) =>
         <View className="flex flex-grow flex-row justify-between border-b border-gray-400 py-2">
           <Text className="text-lg ">{item.itemName}</Text>
           <View className="items-center justify-center rounded bg-gray-800 px-4">
-            <Text className="text text-white">{item.ratings.length}</Text>
+            <Text className="text text-white">{item?.ratings ? item?.ratings.length : 0}</Text>
           </View>
         </View>
       </TouchableOpacity>

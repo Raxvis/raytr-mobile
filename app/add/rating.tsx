@@ -1,18 +1,22 @@
 import { View, Text } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Dropdown from '../../components/ui/Dropdown';
-import { useDispatch, useSelector } from 'react-redux';
 import EditLayout from '../../components/layout/EditLayout';
-import { RootState } from '../../store/configureStore';
 import Header from '../../components/ui/Header';
 import { Rating, RatingSchema, Score } from '../../types';
 import Slider from '@react-native-community/slider';
 import Button from '../../components/ui/Button';
 import TextInput from '../../components/ui/TextInput';
 import uuid from '../../utils/uuid';
-import { addRating } from '../../store/ratings';
+import useAsyncEffect from '../../hooks/useAsyncEffect';
+import getAllCategories from '../../services/category/getAllCategories';
+import getAllItems from '../../services/item/getAllItems';
+import useAsyncCallback from '../../hooks/useAsyncCallback';
+import addRating from '../../services/rating/addRating';
+import useAsyncMemo from '../../hooks/useAsyncMemo';
+import getCategoryWithRatingSchema from '../../services/category/getCategoryWIthRatingSchema';
 
 const createOptions = (records, labelKey, valueKey) =>
   records.map((record) => ({
@@ -26,46 +30,71 @@ const getNewRating = (): Rating => ({
   ratingId: uuid(),
   itemId: '',
   categoryId: '',
-  ratingTime: new Date(),
+  ratingTime: Date.now(),
 });
 
 const AddRating = () => {
-  const dispatch = useDispatch();
   const params = useLocalSearchParams();
   const [rating, setRating] = useState<Rating>(getNewRating());
   const [scores, setScores] = useState({});
+  const [state, setState] = useState({
+    categories: [],
+    category: undefined,
+    categoryOptions: [],
+    item: undefined,
+    itemOptions: [],
+    items: [],
+  });
 
-  const { categories } = useSelector((state: RootState) => state.categories);
-  const { items } = useSelector((state: RootState) => state.items);
+  useAsyncEffect(async () => {
+    const categories = await getAllCategories();
+    const items = await getAllItems();
+    const categoryOptions = createOptions(categories, 'categoryName', 'categoryId');
+    const itemOptions = createOptions(items, 'itemName', 'itemId');
 
-  const categoryOptions = useMemo(() => createOptions(categories, 'categoryName', 'categoryId'), [categories]);
-  const itemOptions = useMemo(() => createOptions(items, 'itemName', 'itemId'), [items]);
+    setState((s) => ({ ...s, categories, items, categoryOptions, itemOptions }));
+  }, []);
 
-  const category = useMemo(() => find(categories, 'categoryId', rating.categoryId), [categories, rating.categoryId]);
-  const item = useMemo(() => find(items, 'itemId', rating.itemId), [items, rating.itemId]);
+  useAsyncEffect(async () => {
+    if (rating.categoryId) {
+      const category = await getCategoryWithRatingSchema(rating.categoryId);
+
+      setState((s) => ({ ...s, category }));
+    }
+  }, [rating.categoryId]);
 
   useEffect(() => {
-    if (params.categoryId || params.itemId) {
-      setRating((r) => ({ ...r, ...params }));
+    if (rating.itemId && state.items) {
+      const item = find(state.items, 'itemId', rating.itemId);
+
+      if (item) {
+        setRating((r) => ({ ...r, itemCost: item.itemCost }));
+      }
     }
-  }, [params]);
+  }, [state.items, rating.itemId]);
+
+  // useEffect(() => {
+  //   const { categoryId, itemId } = params;
+
+  //   if (categoryId && !Array.isArray(categoryId)) {
+  //     setRating((r) => ({ ...r, categoryId }));
+  //   }
+  //   if (itemId && !Array.isArray(itemId)) {
+  //     setRating((r) => ({ ...r, itemId }));
+  //   }
+  // }, [params]);
 
   const updateRating = (key) => (value) => setRating((r) => ({ ...r, [key]: value }));
   const updateScores = (key) => (value) => setScores((s) => ({ ...s, [key]: Math.round(value) }));
 
-  const saveRating = useCallback(() => {
-    const parsedScores = Object.keys(scores).map(
-      (ratingSchemaId): Score => ({ ratingSchemaId, scoreValue: scores[ratingSchemaId] }),
-    );
-    const ratingTotal = parsedScores.reduce((result, score) => result + score.scoreValue, 0) / parsedScores.length;
+  const [saveRating] = useAsyncCallback(async () => {
+    try {
+      await addRating(rating, scores);
+    } catch (error) {
+      console.log(error);
+      console.log(JSON.stringify(error));
+    }
 
-    dispatch(
-      addRating({
-        ...rating,
-        ratingTotal: Math.round(ratingTotal * 100) / 100,
-        scores: parsedScores,
-      }),
-    );
     router.replace(`/category/${rating.categoryId}/item/${rating.itemId}`);
   }, [rating, scores]);
 
@@ -79,7 +108,7 @@ const AddRating = () => {
               value={rating.categoryId}
               name="Category"
               onChange={updateRating('categoryId')}
-              options={categoryOptions}
+              options={state.categoryOptions}
             />
             <Text className="text-sm italic text-gray-600">
               Don't see your Category?{' '}
@@ -89,7 +118,7 @@ const AddRating = () => {
             </Text>
           </View>
           <View className="mb-2">
-            <Dropdown value={rating.itemId} name="Item" onChange={updateRating('itemId')} options={itemOptions} />
+            <Dropdown value={rating.itemId} name="Item" onChange={updateRating('itemId')} options={state.itemOptions} />
             <Text className="text-sm italic text-gray-600">
               Don't see your Item?{' '}
               <Link className="underline" href="/add/item">
@@ -99,11 +128,7 @@ const AddRating = () => {
           </View>
           {rating.categoryId && rating.itemId ? (
             <View className="">
-              <TextInput
-                name="Item Cost"
-                onChange={updateRating('itemCost')}
-                value={rating?.itemCost || item?.itemCost}
-              />
+              <TextInput name="Item Cost" onChange={updateRating('itemCost')} value={`${rating?.itemCost}`} />
               <TextInput
                 name="Rating Notes"
                 multiline
@@ -111,7 +136,7 @@ const AddRating = () => {
                 value={rating?.ratingNotes}
               />
               <View className="">
-                {category.ratingSchema.map((schema: RatingSchema) => (
+                {state.category?.ratingSchema.map((schema: RatingSchema) => (
                   <View className="mt-2" key={schema.ratingSchemaId}>
                     <View className="flex flex-row justify-between">
                       <Text className="text-lg">{schema.ratingSchemaName}</Text>
