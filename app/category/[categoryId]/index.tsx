@@ -1,28 +1,29 @@
 import { Cog6ToothIcon } from 'react-native-heroicons/outline';
-import { RootState } from '../../../store/configureStore';
-import { Stack, useLocalSearchParams, router } from 'expo-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { useMemo, useState } from 'react';
+import { Stack, useLocalSearchParams, router, useNavigation } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import CategoryItem from '../../../components/CategoryItem';
-import getItemsWithRatingsByCategory from '../../../utils/getItemsWithRatingsByCategory';
 import NavButton from '../../../components/ui/NavButton';
 import Header from '../../../components/ui/Header';
-import useAsyncEffect from '../../../hooks/useAsyncEffect';
 import { Category, Item } from '../../../types';
 import getCategoryWithItems from '../../../services/category/getCategoryWithItems';
 
 const CategoryPage = () => {
+  const navigation = useNavigation();
   const { categoryId } = useLocalSearchParams();
   const [category, setCategory] = useState<Category | undefined>();
   const [items, setItems] = useState<Item[]>([]);
 
-  useAsyncEffect(async () => {
-    const { category, items } = await getCategoryWithItems(categoryId);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      const { category, items } = await getCategoryWithItems(categoryId);
 
-    setCategory(category);
-    setItems(items);
-  }, [categoryId]);
+      setCategory(category);
+      setItems(items);
+    });
+
+    return unsubscribe;
+  }, [navigation, categoryId]);
 
   if (!category) {
     return null;
