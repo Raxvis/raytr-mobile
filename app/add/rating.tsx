@@ -73,16 +73,17 @@ const AddRating = () => {
     }
   }, [state.items, rating.itemId]);
 
-  // useEffect(() => {
-  //   const { categoryId, itemId } = params;
+  useEffect(() => {
+    console.log('updating params');
+    const { categoryId, itemId } = params;
 
-  //   if (categoryId && !Array.isArray(categoryId)) {
-  //     setRating((r) => ({ ...r, categoryId }));
-  //   }
-  //   if (itemId && !Array.isArray(itemId)) {
-  //     setRating((r) => ({ ...r, itemId }));
-  //   }
-  // }, [params]);
+    if (categoryId && !Array.isArray(categoryId)) {
+      setRating((r) => ({ ...r, categoryId }));
+    }
+    if (itemId && !Array.isArray(itemId)) {
+      setRating((r) => ({ ...r, itemId }));
+    }
+  }, [params.categoryId, params.itemId]);
 
   const updateRating = (key) => (value) => setRating((r) => ({ ...r, [key]: value }));
   const updateScores = (key) => (value) => setScores((s) => ({ ...s, [key]: Math.round(value) }));
