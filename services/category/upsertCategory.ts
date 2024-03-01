@@ -2,20 +2,16 @@ import knex from '../../db';
 
 const upsertCategory = async (payload) => {
   const { ratingSchema, ...category } = payload;
-  const previousCategory = await knex('category').where({ categoryId: category.categoryId }).first();
 
-  if (previousCategory) {
-    await knex('category').update(category).where({ categoryId: category.categoryId });
-  } else {
-    await knex('category').insert(category);
-  }
+  await knex('category').insert(category).onConflict('categoryId').merge();
+
   for (const schema of ratingSchema) {
-    if (schema.categoryId) {
-      await knex('ratingSchema').update(schema).where({ ratingSchemaId: schema.ratingSchemaId });
-    } else {
-      await knex('ratingSchema').insert({ ...schema, categoryId: category.categoryId });
-    }
+    await knex('ratingSchema')
+      .insert({ ...schema, categoryId: category.categoryId })
+      .onConflict('ratingSchemaId')
+      .merge();
   }
+
   const ratingSchemaIds = ratingSchema.map(({ ratingSchemaId }) => ratingSchemaId);
   await knex('ratingSchema')
     .del()

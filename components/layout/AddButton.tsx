@@ -22,16 +22,18 @@ const AddButton = () => {
   }
 
   return (
-    <View className="absolute bottom-8 left-0 right-0 w-full">
+    <View className="absolute bottom-8 left-0 right-0 w-full" pointerEvents="none">
       {!open ? (
-        <TouchableOpacity
-          onPress={() => setOpen(true)}
+        <View
+          pointerEvents="box-only"
           className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-accent bg-white"
         >
-          <PlusIcon size={36} color={'black'} />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => setOpen(true)}>
+            <PlusIcon size={36} color={'black'} />
+          </TouchableOpacity>
+        </View>
       ) : (
-        <View className="relative mx-auto flex h-14 w-14 rounded-full">
+        <View className="relative mx-auto flex h-14 w-14 rounded-full" pointerEvents="box-only">
           <TouchableOpacity
             onPress={() => setOpen(false)}
             className=" flex h-full w-full items-center justify-center rounded-full border-2  border-dashed border-white"

@@ -30,7 +30,7 @@ const CategoryPage = () => {
   }
 
   return (
-    <View className="flex h-full">
+    <>
       <Stack.Screen
         options={{
           headerLeft: () => <NavButton onPress={() => router.navigate(`/`)} isBack text="Back" color="white" />,
@@ -43,22 +43,22 @@ const CategoryPage = () => {
           ),
         }}
       />
-      <Header title={category.categoryName} subtitle={category.categoryDescription} />
-      {items.length > 0 ? (
-        <FlatList
-          data={items}
-          className="flex flex-col"
-          keyExtractor={(item) => item.itemId}
-          renderItem={({ item }) => <CategoryItem category={category} item={item} />}
-        />
-      ) : (
-        <View className="p-2">
-          <Text className="text-lg">
-            Looks like you don't have any ratings yet. You can add them by press the plus at the bottom of the screen
-          </Text>
-        </View>
-      )}
-    </View>
+
+      <FlatList
+        ListHeaderComponent={<Header title={category.categoryName} subtitle={category.categoryDescription} />}
+        ListEmptyComponent={
+          <View className="p-2">
+            <Text className="text-lg">
+              Looks like you don't have any ratings yet. You can add them by press the plus at the bottom of the screen
+            </Text>
+          </View>
+        }
+        data={items}
+        className="flex flex-col"
+        keyExtractor={(item) => item.itemId}
+        renderItem={({ item }) => <CategoryItem category={category} item={item} />}
+      />
+    </>
   );
 };
 

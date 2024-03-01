@@ -37,11 +37,13 @@ export type Rating = {
   ratingTotal?: number;
   ratingNotes?: string;
   ratingTime: number;
+  scores?: Score[];
 };
 
 export type Score = {
   scoreId: string;
   ratingId: string;
   ratingSchemaId: string;
-  scoreValue: number;
+  scoreValue?: number;
+  ratingSchema?: RatingSchema;
 };

@@ -13,7 +13,6 @@ const useAsyncMemo = (fn: () => Promise<any>, deps = []) => {
         setValue(result);
         setState({ loading: false, error: undefined });
       } catch (error) {
-        console.log(error);
         setState({ loading: false, error });
       }
     };

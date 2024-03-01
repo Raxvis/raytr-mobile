@@ -1,5 +1,5 @@
 import knex from '../../db';
 
-const getAllCategories = () => knex('category');
+const getAllCategories = async () => await knex('category');
 
 export default getAllCategories;

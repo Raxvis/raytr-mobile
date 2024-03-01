@@ -10,7 +10,6 @@ const useAsyncEffect = (fn: () => Promise<void>, deps = []) => {
         await fn();
         setState({ loading: false, error: undefined });
       } catch (error) {
-        console.log(error);
         setState({ loading: false, error });
       }
     };

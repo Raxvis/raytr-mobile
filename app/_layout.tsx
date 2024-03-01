@@ -1,10 +1,8 @@
 import * as SplashScreen from 'expo-splash-screen';
 import { Text, View } from 'react-native';
 import store, { persistedStore } from '../store/configureStore';
-import AddButton from '../components/layout/AddButton';
+import BottomBar from '../components/layout/BottomBar';
 import NavButton from '../components/ui/NavButton';
-import { PersistGate } from 'redux-persist/integration/react';
-import { Provider } from 'react-redux';
 import { Stack } from 'expo-router/stack';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -51,35 +49,33 @@ const App = () => {
       <SQLiteProvider databaseName="raytr.db" onInit={migrate} useSuspense={true}>
         <SafeAreaProvider>
           <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-            <Provider store={store}>
-              <PersistGate persistor={persistedStore} loading={null}>
-                <StatusBar style="dark" />
-                <Stack
-                  screenOptions={({ navigation }) => ({
-                    animation: 'simple_push',
-                    headerStyle: {
-                      backgroundColor: 'black',
-                    },
-                    headerBackTitle: 'Back',
-                    headerTintColor: 'white',
-                    headerBackTitleStyle: {
-                      fontFamily: 'Poppins_400Regular',
-                    },
-                    headerTitle: ({ children, tintColor }) => (
-                      <Text
-                        style={{ color: tintColor }}
-                        className="pl-4 text-center font-poppins text-2xl font-bold tracking-[16px]"
-                      >
-                        {'RAYTR'}
-                      </Text>
-                    ),
-                    headerLeft: ({ canGoBack }) =>
-                      canGoBack ? <NavButton onPress={navigation.goBack} isBack text="Back" color="white" /> : null,
-                  })}
-                />
-                <AddButton />
-              </PersistGate>
-            </Provider>
+            <View className="flex flex-grow grow">
+              <StatusBar style="dark" />
+              <Stack
+                screenOptions={({ navigation }) => ({
+                  animation: 'simple_push',
+                  headerStyle: {
+                    backgroundColor: 'black',
+                  },
+                  headerBackTitle: 'Back',
+                  headerTintColor: 'white',
+                  headerBackTitleStyle: {
+                    fontFamily: 'Poppins_400Regular',
+                  },
+                  headerTitle: ({ children, tintColor }) => (
+                    <Text
+                      style={{ color: tintColor }}
+                      className="pl-4 text-center font-poppins text-2xl font-bold tracking-[16px]"
+                    >
+                      {'RAYTR'}
+                    </Text>
+                  ),
+                  headerLeft: ({ canGoBack }) =>
+                    canGoBack ? <NavButton onPress={navigation.goBack} isBack text="Back" color="white" /> : null,
+                })}
+              />
+            </View>
+            <BottomBar />
           </View>
         </SafeAreaProvider>
       </SQLiteProvider>

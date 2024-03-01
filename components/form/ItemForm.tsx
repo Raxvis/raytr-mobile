@@ -27,7 +27,7 @@ type ItemFormProps = {
   initialState: Item;
 };
 
-const ItemForm = ({ edit, initialState }: EditCategoryProps) => {
+const ItemForm = ({ edit, initialState }: ItemFormProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const updateValue = (key) => (value) => dispatch({ type: 'UPDATE', payload: { [key]: value } });
@@ -36,7 +36,7 @@ const ItemForm = ({ edit, initialState }: EditCategoryProps) => {
     dispatch({ type: 'SET', payload: initialState });
   }, []);
 
-  const [saveItem] = useAsyncCallback(async () => {
+  const [save, { loading: saving }] = useAsyncCallback(async () => {
     await upsertItem(state);
     router.back();
   }, [state]);
@@ -73,7 +73,7 @@ const ItemForm = ({ edit, initialState }: EditCategoryProps) => {
             name="Item Cost"
             keyboardType="numeric"
             onChange={updateValue('itemCost')}
-            value={state.itemCost}
+            value={`${state.itemCost}`}
           />
           <View className="flex">
             {state.itemPicture ? (
@@ -96,7 +96,11 @@ const ItemForm = ({ edit, initialState }: EditCategoryProps) => {
         </View>
       </View>
       <View className="flex p-2">
-        {edit ? <Button onPress={saveItem} text="Save Item" /> : <Button onPress={saveItem} text="Add Item" />}
+        {edit ? (
+          <Button disabled={saving} onPress={save} text="Save Item" />
+        ) : (
+          <Button disabled={saving} onPress={save} text="Add Item" />
+        )}
       </View>
     </EditLayout>
   );

@@ -1,7 +1,12 @@
 import knex from '../../db';
 import { Category, Item } from '../../types';
+import round from '../../utils/round';
 
 const getCategoryWithItems = async (categoryId) => {
+  if (!categoryId) {
+    return undefined;
+  }
+
   const category: Category = await knex('category').where({ categoryId }).first();
   const ratings = await knex('rating').select('itemId', 'ratingTotal').where({ categoryId });
   const itemIds: Partial<Rating> = ratings.map(({ itemId }) => itemId);
@@ -10,7 +15,10 @@ const getCategoryWithItems = async (categoryId) => {
   const scores = ratings.reduce(
     (results, rating) => ({
       ...results,
-      [rating.itemId]: (results[rating.itemId] || 0) + rating.ratingTotal,
+      [rating.itemId]: {
+        total: results[rating.itemId] ? results[rating.itemId].total + rating.ratingTotal : rating.ratingTotal,
+        count: results[rating.itemId] ? results[rating.itemId].count + 1 : 1,
+      },
     }),
     {},
   );
@@ -19,7 +27,7 @@ const getCategoryWithItems = async (categoryId) => {
     category,
     items: items.map((item) => ({
       ...item,
-      overallRating: scores[item.itemId],
+      overallRating: round(scores[item.itemId].total / scores[item.itemId].count),
     })),
   };
 };
