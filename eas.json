@@ -1,5 +1,18 @@
 {
   "build": {
-    "production": {}
+    "preview": {
+      "channel": "preview"
+    },
+    "production": {
+      "channel": "production"
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "william@prefinem.com",
+        "appleTeamId": "5J72W5PTY4"
+      }
+    }
   }
 }
