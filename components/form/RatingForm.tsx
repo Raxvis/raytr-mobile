@@ -17,12 +17,7 @@ import useAsyncCallback from '../../hooks/useAsyncCallback';
 import upsertRating from '../../services/rating/upsertRating';
 import getCategoryWithRatingSchema from '../../services/category/getCategoryWIthRatingSchema';
 import deleteRating from '../../services/rating/deleteRating';
-
-const createOptions = (records, labelKey, valueKey) =>
-  records.map((record) => ({
-    label: record[labelKey],
-    value: record[valueKey],
-  }));
+import createOptions from '../../utils/createOptions';
 
 const find = (records, key, match) => (match ? records.find((record) => record[key] === match) : undefined);
 

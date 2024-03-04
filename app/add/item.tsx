@@ -10,8 +10,6 @@ const getNewItem = (): Item => ({
   itemCost: undefined,
 });
 
-const AddItem = () => {
-  return <ItemForm initialState={getNewItem()} />;
-};
+const AddItem = () => <ItemForm initialState={getNewItem()} />;
 
 export default AddItem;

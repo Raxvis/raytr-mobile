@@ -7,8 +7,7 @@ const createItemTable = async (db: SQLiteDatabase) => {
       itemName TEXT NOT NULL,
       itemPicture TEXT,
       itemDescription TEXT,
-      itemCost REAL,
-      overallRating REAL
+      itemCost REAL
     );
   `);
 };

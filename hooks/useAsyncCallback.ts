@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-const useAsyncCallback = (fn, deps = []) => {
+const useAsyncCallback = (fn, deps = []): [(...args) => void, { loading: boolean; error?: any; data?: any }] => {
   const [state, setState] = useState({ loading: false, error: undefined, data: undefined });
 
   const callback = useCallback((...args) => {

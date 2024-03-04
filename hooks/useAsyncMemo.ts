@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-const useAsyncMemo = (fn: () => Promise<any>, deps = []) => {
+const useAsyncMemo = (fn: () => Promise<any>, deps = []): [any, { loading: boolean; error?: any }] => {
   const [state, setState] = useState({ loading: true, error: undefined });
   const [value, setValue] = useState<any>();
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const useAsyncEffect = (fn: () => Promise<void>, deps = []) => {
+const useAsyncEffect = (fn: () => Promise<void>, deps = []): { loading: boolean; error?: any } => {
   const [state, setState] = useState({ loading: true, error: undefined });
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { Item } from '../../types';
 import { router } from 'expo-router';
-import { useEffect, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 import { Image, View, TouchableOpacity } from 'react-native';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
@@ -10,17 +10,10 @@ import EditLayout from '../layout/EditLayout';
 import Header from '../ui/Header';
 import useAsyncCallback from '../../hooks/useAsyncCallback';
 import upsertItem from '../../services/item/upsertItem';
-
-const reducer = (state, { payload, type }: { payload?: any; type: string }) => {
-  switch (type) {
-    case 'SET':
-      return { ...payload };
-    case 'UPDATE':
-      return { ...state, ...payload };
-    default:
-      return state;
-  }
-};
+import Multiselect from '../ui/Multiselect';
+import getAllCategories from '../../services/category/getAllCategories';
+import createOptions from '../../utils/createOptions';
+import useAsyncMemo from '../../hooks/useAsyncMemo';
 
 type ItemFormProps = {
   edit?: boolean;
@@ -28,34 +21,65 @@ type ItemFormProps = {
 };
 
 const ItemForm = ({ edit, initialState }: ItemFormProps) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, setState] = useState(initialState);
+  const [categories, setCategories] = useState([]);
 
-  const updateValue = (key) => (value) => dispatch({ type: 'UPDATE', payload: { [key]: value } });
-
-  useEffect(() => {
-    dispatch({ type: 'SET', payload: initialState });
-  }, []);
+  const updateValue = (key) => (value) => setState((s) => ({ ...s, [key]: value }));
 
   const [save, { loading: saving }] = useAsyncCallback(async () => {
-    await upsertItem(state);
-    router.back();
-  }, [state]);
+    await upsertItem(state, categories);
+    router.replace(`/add/${state.itemId}`);
+  }, [state, categories]);
 
-  const pickImage = async () => {
+  const pickLibraryImage = async () => {
     // No permissions request is necessary for launching the image library
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [4, 4],
       quality: 1,
     });
 
     if (!result.canceled) {
-      dispatch({ type: 'UPDATE', payload: { itemPicture: result.assets[0].uri } });
+      setState((s) => ({ ...s, itemPicture: result.assets[0].uri }));
     }
   };
 
-  const removeImage = () => dispatch({ type: 'UPDATE', payload: { itemPicture: null } });
+  const pickPhotoImage = async () => {
+    const permissions = await ImagePicker.getCameraPermissionsAsync();
+
+    if (permissions.status !== 'granted' && permissions.canAskAgain) {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+      if (status !== 'granted') {
+        return;
+      }
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setState((s) => ({ ...s, itemPicture: result.assets[0].uri }));
+    }
+  };
+
+  const removeImage = () => setState((s) => ({ ...s, itemPicture: null }));
+
+  const upateCategories = useCallback((value) => {
+    setCategories(value);
+  }, []);
+
+  const [categoryOptions] = useAsyncMemo(async () => {
+    const categorys = await getAllCategories();
+    const categoryOptions = createOptions(categorys, 'categoryName', 'categoryId');
+
+    return categoryOptions;
+  }, []);
 
   return (
     <EditLayout>
@@ -73,8 +97,9 @@ const ItemForm = ({ edit, initialState }: ItemFormProps) => {
             name="Item Cost"
             keyboardType="numeric"
             onChange={updateValue('itemCost')}
-            value={`${state.itemCost}`}
+            value={state.itemCost ? `${state.itemCost}` : undefined}
           />
+          <Multiselect options={categoryOptions} name="Category" onChange={upateCategories} value={categories} />
           <View className="flex">
             {state.itemPicture ? (
               <View className="flex">
@@ -91,7 +116,14 @@ const ItemForm = ({ edit, initialState }: ItemFormProps) => {
                 </View>
               </View>
             ) : null}
-            <Button onPress={pickImage} text="Select Image" />
+            <View className="flex flex-row justify-between">
+              <View className="mr-2 flex flex-1">
+                <Button onPress={pickLibraryImage} text="Select Image" />
+              </View>
+              <View className="ml-2 flex flex-1">
+                <Button onPress={pickPhotoImage} text="Take Photo" />
+              </View>
+            </View>
           </View>
         </View>
       </View>

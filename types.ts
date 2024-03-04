@@ -7,16 +7,6 @@ export type ComponentWithChildren = {
 export type Category = {
   categoryId: string;
   categoryName: string;
-  categoryDescription?: string;
-  ratingSchema?: RatingSchema[];
-};
-
-export type RatingSchema = {
-  categoryId: string;
-  ratingSchemaId: string;
-  ratingSchemaName: string;
-  // ratingSchemaType: string;
-  // ratingSchemaWeight: number;
 };
 
 export type Item = {
@@ -29,21 +19,31 @@ export type Item = {
   ratings?: Rating[];
 };
 
+export type ItemCategories = {
+  itemId: string;
+  categoryId: string;
+};
+
 export type Rating = {
   ratingId: string;
-  categoryId: string;
   itemId: string;
   itemCost?: number;
-  ratingTotal?: number;
   ratingNotes?: string;
   ratingTime: number;
+  overallRating?: number;
+  compositeRating?: number;
   scores?: Score[];
 };
 
 export type Score = {
   scoreId: string;
   ratingId: string;
-  ratingSchemaId: string;
   scoreValue?: number;
+  ratingSchemaId: string;
   ratingSchema?: RatingSchema;
+};
+
+export type RatingSchema = {
+  ratingSchemaId: string;
+  ratingSchemaName: string;
 };
