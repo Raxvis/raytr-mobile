@@ -5,17 +5,29 @@ import type { KeyboardType } from 'react-native';
 
 type TextInputProps = {
   classNames?: string;
+  keyboardType?: KeyboardType;
+  multiline?: boolean;
   name?: string;
   onChange: (value: string) => void;
+  placeholder?: string;
+  textInputClassNames?: string;
   value: string;
-  multiline?: boolean;
-  keyboardType?: KeyboardType;
 };
 
-const TextInputField = ({ classNames, onChange, name, multiline, value, keyboardType }: TextInputProps) => {
+const TextInputField = ({
+  classNames,
+  keyboardType,
+  multiline,
+  name,
+  onChange,
+  placeholder,
+  textInputClassNames,
+  value,
+}: TextInputProps) => {
   const textInputClassName = classnames(
     'bg-white rounded p-3 border border-gray-300 flex flex-row rounded p-2 justify-center items-top',
     multiline ? 'min-h-[100px] max-h-[300px]' : 'h-[50px]',
+    textInputClassNames,
   );
 
   return (
@@ -29,6 +41,7 @@ const TextInputField = ({ classNames, onChange, name, multiline, value, keyboard
           multiline={multiline}
           onChangeText={onChange}
           value={value}
+          placeholder={placeholder}
         />
       </View>
     </View>

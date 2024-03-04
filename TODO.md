@@ -1,14 +1,16 @@
 # TODO
 
-- Categories should exist as tags
-- Pull schema from Tags -> Items -> Schema, Distinct
-- Overall Rating is always on
-- Overall Rating / Composite Rating
+- Home Page (UI)
+- Category List Page
+- Edit Item Page
+- View Ratings
+- Delete Ratings (swipe?)
 
 ## Next Features
 
 - Add Page for a feed of Ratings
 - Add Lists which allows Items to get added to them
+- Profile page should show "Coming Soon"
 
 ## Fast Follow
 
