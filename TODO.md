@@ -1,5 +1,7 @@
 # TODO
 
+- Revisit needing ratingSchema (we could just use scoreName?)
+- If keeping ratingSchema, rename to ratingMetric
 - Home Page (UI)
 - Category List Page
 - Edit Item Page
