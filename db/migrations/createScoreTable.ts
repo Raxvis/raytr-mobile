@@ -6,9 +6,9 @@ const createScoreTable = async (db: SQLiteDatabase) => {
       scoreId TEXT PRIMARY KEY NOT NULL,
       ratingId TEXT NOT NULL,
       scoreValue INTEGER NOT NULL,
-      ratingSchemaId TEXT NOT NULL,
+      ratingMetricId TEXT NOT NULL,
       FOREIGN KEY(ratingId) REFERENCES rating(ratingId),
-      FOREIGN KEY(ratingSchemaId) REFERENCES ratingSchema(ratingSchemaId)
+      FOREIGN KEY(ratingMetricId) REFERENCES ratingMetric(ratingMetricId)
     );
   `);
 };

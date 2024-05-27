@@ -13,10 +13,10 @@ import uuid from '../../utils/uuid';
 import useAsyncEffect from '../../hooks/useAsyncEffect';
 import useAsyncCallback from '../../hooks/useAsyncCallback';
 import upsertRating from '../../services/rating/upsertRating';
-import getCategoryWithRatingSchema from '../../services/category/getCategoryWIthRatingSchema';
+import getCategoryWithRatingMetric from '../../services/category/getCategoryWIthRatingMetric';
 import deleteRating from '../../services/rating/deleteRating';
 import getItem from '../../services/item/getItem';
-import getItemSchemas from '../../services/item/getItemSchemas';
+import getItemRatings from '../../services/item/getItemMetrics';
 
 const find = (records, key, match) => (match ? records.find((record) => record[key] === match) : undefined);
 
@@ -30,28 +30,28 @@ const RatingForm = ({ edit, initialState }: ItemFormProps) => {
   const [rating, setRating] = useState<Rating>(initialState);
   const [state, setState] = useState({
     item: undefined,
-    ratingSchemas: [],
+    ratingMetrics: [],
   });
 
   useAsyncEffect(async () => {
     // Get schema for item
-    const ratingSchemas = await getItemSchemas(initialState.itemId);
+    const ratingMetrics = await getItemRatings(initialState.itemId);
     const item = await getItem<Item>(initialState.itemId);
 
-    // console.log(JSON.stringify(ratingSchemas, null, 2));
+    // console.log(JSON.stringify(ratingMetrics, null, 2));
 
     if (item) {
       setRating((r) => ({ ...r, itemCost: item.itemCost }));
-      setState((s) => ({ ...s, item, ratingSchemas }));
+      setState((s) => ({ ...s, item, ratingMetrics }));
     }
 
     setRating((r) => ({
       ...r,
-      scores: ratingSchemas.map((ratingSchema) => ({
+      scores: ratingMetrics.map((ratingMetric) => ({
         ratingId: r.ratingId,
         scoreId: uuid(),
-        ratingSchemaId: ratingSchema.ratingSchemaId,
-        ratingSchema: ratingSchema,
+        ratingMetricId: ratingMetric.ratingMetricId,
+        ratingMetric: ratingMetric,
       })),
     }));
   }, [initialState]);
@@ -66,19 +66,19 @@ const RatingForm = ({ edit, initialState }: ItemFormProps) => {
         ...(score.scoreId === scoreId ? { scoreValue: Math.round(value) } : {}),
       })),
     }));
-  const updateRatingSchemaName = (scoreId) => (value) =>
+  const updateRatingMetricName = (scoreId) => (value) =>
     setRating((r) => ({
       ...r,
       scores: r.scores.map((score) => ({
         ...score,
-        ratingSchema: {
-          ...score.ratingSchema,
-          ...(score.scoreId === scoreId ? { ratingSchemaName: value } : {}),
+        ratingMetric: {
+          ...score.ratingMetric,
+          ...(score.scoreId === scoreId ? { ratingMetricName: value } : {}),
         },
       })),
     }));
 
-  const addRatingSchema = () => {
+  const addRatingMetric = () => {
     setRating((r) => ({
       ...r,
       scores: [
@@ -86,10 +86,10 @@ const RatingForm = ({ edit, initialState }: ItemFormProps) => {
         {
           ratingId: r.ratingId,
           scoreId: uuid(),
-          ratingSchemaId: '',
-          ratingSchema: {
-            ratingSchemaId: '',
-            ratingSchemaName: '',
+          ratingMetricId: '',
+          ratingMetric: {
+            ratingMetricId: '',
+            ratingMetricName: '',
           },
         },
       ],
@@ -139,12 +139,12 @@ const RatingForm = ({ edit, initialState }: ItemFormProps) => {
               <View className="mt-2" key={score.scoreId}>
                 <View className="flex w-full flex-row items-center">
                   <View className="mr-8 flex flex-grow">
-                    {score.ratingSchema.ratingSchemaId ? (
-                      <Text className="text-lg">{score.ratingSchema.ratingSchemaName}</Text>
+                    {score.ratingMetric.ratingMetricId ? (
+                      <Text className="text-lg">{score.ratingMetric.ratingMetricName}</Text>
                     ) : (
                       <TextInput
-                        onChange={updateRatingSchemaName(score.scoreId)}
-                        value={score.ratingSchema.ratingSchemaName}
+                        onChange={updateRatingMetricName(score.scoreId)}
+                        value={score.ratingMetric.ratingMetricName}
                         classNames="flex-row items-center gap-8"
                         textInputClassNames="flex-grow"
                         placeholder="Metric Name"
@@ -167,7 +167,7 @@ const RatingForm = ({ edit, initialState }: ItemFormProps) => {
               </View>
             ))}
           </View>
-          <Button onPress={addRatingSchema} text="Add Rating Metric" />
+          <Button onPress={addRatingMetric} text="Add Rating Metric" />
         </View>
       </View>
       <View className="mt-8 flex space-x-2 p-2">

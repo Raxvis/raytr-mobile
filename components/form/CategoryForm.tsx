@@ -1,4 +1,4 @@
-import { Category, RatingSchema } from '../../types';
+import { Category, RatingMetric } from '../../types';
 import { TrashIcon } from 'react-native-heroicons/outline';
 import { useCallback, useReducer } from 'react';
 import { router } from 'expo-router';
@@ -13,10 +13,10 @@ import useAsyncCallback from '../../hooks/useAsyncCallback';
 import upsertCategory from '../../services/category/upsertCategory';
 import deleteCategory from '../../services/category/deleteCategory';
 
-const getNewRatingSchema = (): RatingSchema => ({
+const getNewRatingMetric = (): RatingMetric => ({
   categoryId: '',
-  ratingSchemaId: uuid(),
-  ratingSchemaName: '',
+  ratingMetricId: uuid(),
+  ratingMetricName: '',
 });
 
 const reducer = (state, { payload, type }: { payload?: any; type: string }) => {
@@ -26,17 +26,17 @@ const reducer = (state, { payload, type }: { payload?: any; type: string }) => {
     case 'UPDATE':
       return { ...state, ...payload };
     case 'ADD_METRIC':
-      return { ...state, ratingSchema: [...state.ratingSchema, getNewRatingSchema()] };
+      return { ...state, ratingMetric: [...state.ratingMetric, getNewRatingMetric()] };
     case 'REMOVE_METRIC':
-      return { ...state, ratingSchema: state.ratingSchema.filter(({ ratingSchemaId }) => ratingSchemaId !== payload) };
+      return { ...state, ratingMetric: state.ratingMetric.filter(({ ratingMetricId }) => ratingMetricId !== payload) };
     case 'UPDATE_METRIC':
-      const { ratingSchemaId, ...rest } = payload;
+      const { ratingMetricId, ...rest } = payload;
 
       return {
         ...state,
-        ratingSchema: state.ratingSchema.map((ratingSchema) => ({
-          ...ratingSchema,
-          ...(ratingSchemaId === ratingSchema.ratingSchemaId ? rest : {}),
+        ratingMetric: state.ratingMetric.map((ratingMetric) => ({
+          ...ratingMetric,
+          ...(ratingMetricId === ratingMetric.ratingMetricId ? rest : {}),
         })),
       };
     default:
@@ -52,11 +52,11 @@ type EditCategoryProps = {
 const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const updateValue = (key) => (value) => dispatch({ type: 'UPDATE', payload: { [key]: value } });
-  const updateRatingSchema = (ratingSchemaId, key) => (value) =>
+  const updateRatingMetric = (ratingMetricId, key) => (value) =>
     dispatch({
       type: 'UPDATE_METRIC',
       payload: {
-        ratingSchemaId,
+        ratingMetricId,
         [key]: value,
       },
     });
@@ -65,8 +65,8 @@ const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
     dispatch({ type: 'ADD_METRIC' });
   }, []);
 
-  const removeRatingMetric = useCallback((ratingSchemaId) => {
-    dispatch({ type: 'REMOVE_METRIC', payload: ratingSchemaId });
+  const removeRatingMetric = useCallback((ratingMetricId) => {
+    dispatch({ type: 'REMOVE_METRIC', payload: ratingMetricId });
   }, []);
 
   const [save, { loading: saving }] = useAsyncCallback(async () => {
@@ -101,14 +101,14 @@ const EditCategory = ({ edit, initialState }: EditCategoryProps) => {
           <View className="mt-2">
             <Text className="text-lg">Rating Metric</Text>
           </View>
-          {(state.ratingSchema || []).map((ratingSchema) => (
-            <View className="flex flex-row items-center space-y-2" key={ratingSchema.ratingSchemaId}>
+          {(state.ratingMetric || []).map((ratingMetric) => (
+            <View className="flex flex-row items-center space-y-2" key={ratingMetric.ratingMetricId}>
               <TextInput
                 classNames="mr-4"
-                onChange={updateRatingSchema(ratingSchema.ratingSchemaId, 'ratingSchemaName')}
-                value={ratingSchema.ratingSchemaName}
+                onChange={updateRatingMetric(ratingMetric.ratingMetricId, 'ratingMetricName')}
+                value={ratingMetric.ratingMetricName}
               />
-              <IconButton onPress={() => removeRatingMetric(ratingSchema.ratingSchemaId)} Icon={TrashIcon} />
+              <IconButton onPress={() => removeRatingMetric(ratingMetric.ratingMetricId)} Icon={TrashIcon} />
             </View>
           ))}
           <Button onPress={addRatingMetric} text="Add Rating Metric" />

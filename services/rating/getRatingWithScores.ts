@@ -3,16 +3,16 @@ import knex from '../../db';
 const getRatingWithScores = async (ratingId) => {
   const rating = await knex('rating').where({ ratingId }).first();
   const scores = await knex('score').where({ ratingId });
-  const ratingSchemas = await knex('ratingSchema').whereIn(
-    'ratingSchemaId',
-    scores.map(({ ratingSchemaId }) => ratingSchemaId),
+  const ratingMetrics = await knex('ratingMetric').whereIn(
+    'ratingMetricId',
+    scores.map(({ ratingMetricId }) => ratingMetricId),
   );
 
   return {
     ...rating,
     scores: scores.map((score) => ({
       ...score,
-      ratingSchema: ratingSchemas.find(({ ratingSchemaId }) => ratingSchemaId === score.ratingSchemaId),
+      ratingMetric: ratingMetrics.find(({ ratingMetricId }) => ratingMetricId === score.ratingMetricId),
     })),
   };
 };

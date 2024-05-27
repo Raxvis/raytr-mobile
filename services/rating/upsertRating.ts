@@ -3,22 +3,22 @@ import { Rating } from '../../types';
 import round from '../../utils/round';
 import uuid from '../../utils/uuid';
 
-const getRatingSchema = async (ratingSchema) => {
-  if (!ratingSchema.ratingSchemaId) {
-    const rs = await knex('ratingSchema').where('ratingSchemaName', ratingSchema.ratingSchemaName).first();
+const getRatingMetric = async (ratingMetric) => {
+  if (!ratingMetric.ratingMetricId) {
+    const rs = await knex('ratingMetric').where('ratingMetricName', ratingMetric.ratingMetricName).first();
 
     if (rs) {
       return rs;
     }
 
-    const temp = { ratingSchemaId: uuid(), ratingSchemaName: ratingSchema.ratingSchemaName };
+    const temp = { ratingMetricId: uuid(), ratingMetricName: ratingMetric.ratingMetricName };
 
-    await knex('ratingSchema').insert(temp).onConflict('ratingSchemaId').merge();
+    await knex('ratingMetric').insert(temp).onConflict('ratingMetricId').merge();
 
     return temp;
   }
 
-  return ratingSchema;
+  return ratingMetric;
 };
 
 const upsertRating = async (payload: Rating) => {
@@ -36,11 +36,11 @@ const upsertRating = async (payload: Rating) => {
 
   for (const score of scores) {
     if (score.scoreValue) {
-      const { ratingSchema, ...scoreData } = score;
-      const rs = await getRatingSchema(ratingSchema);
+      const { ratingMetric, ...scoreData } = score;
+      const rs = await getRatingMetric(ratingMetric);
 
       await knex('score')
-        .insert({ ...scoreData, ratingSchemaId: rs.ratingSchemaId })
+        .insert({ ...scoreData, ratingMetricId: rs.ratingMetricId })
         .onConflict('scoreId')
         .merge();
     }

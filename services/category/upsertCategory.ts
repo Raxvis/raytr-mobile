@@ -1,22 +1,22 @@
 import knex from '../../db';
 
 const upsertCategory = async (payload) => {
-  const { ratingSchema, ...category } = payload;
+  const { ratingMetric, ...category } = payload;
 
   await knex('category').insert(category).onConflict('categoryId').merge();
 
-  for (const schema of ratingSchema) {
-    await knex('ratingSchema')
+  for (const schema of ratingMetric) {
+    await knex('ratingMetric')
       .insert({ ...schema, categoryId: category.categoryId })
-      .onConflict('ratingSchemaId')
+      .onConflict('ratingMetricId')
       .merge();
   }
 
-  const ratingSchemaIds = ratingSchema.map(({ ratingSchemaId }) => ratingSchemaId);
-  await knex('ratingSchema')
+  const ratingMetricIds = ratingMetric.map(({ ratingMetricId }) => ratingMetricId);
+  await knex('ratingMetric')
     .del()
     .where({ categoryId: category.categoryId })
-    .whereNotIn('ratingSchemaId', ratingSchemaIds);
+    .whereNotIn('ratingMetricId', ratingMetricIds);
 };
 
 export default upsertCategory;

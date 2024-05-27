@@ -1,12 +1,25 @@
 # TODO
 
-- Revisit needing ratingSchema (we could just use scoreName?)
-- If keeping ratingSchema, rename to ratingMetric
-- Home Page (UI)
-- Category List Page
-- Edit Item Page
-- View Ratings
-- Delete Ratings (swipe?)
+## New
+
+```
+items
+  categories
+  ratings
+    scores
+      ratingMetric
+```
+
+- Categories as Tags (Pull all schema from matching items)
+- Overall Rating as always there slider
+- Overall Rating / Composite Rating
+  - If overall rating is empty use composite
+- Page for feed of ratings
+- Add lists which items can get added to
+
+## Other things?
+
+- Revisit needing ratingMetric (we could just use scoreName?)
 
 ## Next Features
 

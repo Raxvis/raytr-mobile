@@ -4,11 +4,6 @@ export type ComponentWithChildren = {
   children: ReactNode;
 };
 
-export type Category = {
-  categoryId: string;
-  categoryName: string;
-};
-
 export type Item = {
   itemId: string;
   itemName: string;
@@ -17,6 +12,11 @@ export type Item = {
   itemCost?: number;
   overallRating?: number;
   ratings?: Rating[];
+};
+
+export type Category = {
+  categoryId: string;
+  categoryName: string;
 };
 
 export type ItemCategories = {
@@ -39,11 +39,11 @@ export type Score = {
   scoreId: string;
   ratingId: string;
   scoreValue?: number;
-  ratingSchemaId: string;
-  ratingSchema?: RatingSchema;
+  ratingMetricId: string;
+  ratingMetric?: RatingMetric;
 };
 
-export type RatingSchema = {
-  ratingSchemaId: string;
-  ratingSchemaName: string;
+export type RatingMetric = {
+  ratingMetricId: string;
+  ratingMetricName: string;
 };
