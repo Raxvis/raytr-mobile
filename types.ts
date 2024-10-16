@@ -7,11 +7,19 @@ export type ComponentWithChildren = {
 export type Item = {
   itemId: string;
   itemName: string;
-  itemPicture?: string;
   itemDescription?: string;
-  itemCost?: number;
-  overallRating?: number;
+  itemPicture?: string;
+  score?: number;
+  prices?: Price[];
+  categories?: Category[];
   ratings?: Rating[];
+};
+
+export type Price = {
+  priceId: string;
+  itemId: string;
+  price: number;
+  location: string;
 };
 
 export type Category = {
@@ -19,7 +27,7 @@ export type Category = {
   categoryName: string;
 };
 
-export type ItemCategories = {
+export type ItemCategory = {
   itemId: string;
   categoryId: string;
 };
@@ -27,7 +35,6 @@ export type ItemCategories = {
 export type Rating = {
   ratingId: string;
   itemId: string;
-  itemCost?: number;
   ratingNotes?: string;
   ratingTime: number;
   overallRating?: number;
@@ -35,15 +42,15 @@ export type Rating = {
   scores?: Score[];
 };
 
-export type Score = {
-  scoreId: string;
-  ratingId: string;
-  scoreValue?: number;
-  ratingMetricId: string;
-  ratingMetric?: RatingMetric;
-};
-
 export type RatingMetric = {
   ratingMetricId: string;
   ratingMetricName: string;
+};
+
+export type Score = {
+  scoreId: string;
+  ratingId: string;
+  score?: number;
+  ratingMetricId: string;
+  ratingMetric?: RatingMetric;
 };

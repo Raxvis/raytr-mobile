@@ -1,10 +1,13 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MultiSelect } from 'react-native-element-dropdown';
 import tw from 'twrnc';
 import classnames from 'classnames';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import { validate } from 'uuid';
+import uuid from '../../utils/uuid';
+import useAsyncEffect from '../../hooks/useAsyncEffect';
+import useAsyncCallback from '../../hooks/useAsyncCallback';
 
 type Option = {
   label: string;
@@ -14,9 +17,10 @@ type Option = {
 type MultiSelectSearchProps = {
   value?: string[];
   onChange(string): void;
-  options: Option[];
   name?: string;
   classNames?: string;
+  loadOptions: () => Promise<Option[]>;
+  createOption: (value: string, label: string) => Promise<Option>;
 };
 
 const renderItem = (item) => (
@@ -25,18 +29,43 @@ const renderItem = (item) => (
   </View>
 );
 
-const MultiSelectSearch = ({ onChange, classNames, name, value = [], options = [] }: MultiSelectSearchProps) => {
-  const [opt, setOpt] = useState(options);
+const MultiSelectSearch = ({
+  onChange,
+  classNames,
+  name,
+  value = [],
+  loadOptions,
+  createOption,
+}: MultiSelectSearchProps) => {
+  const [opt, setOpt] = useState([]);
+
+  useAsyncEffect(async () => {
+    const options = await loadOptions();
+    setOpt(options);
+  }, [value]);
+
   const addOption = useCallback(
     (text) => {
       if (text) {
-        const newOption = { label: text, value: text };
-        const valueOptions = value.filter((v) => !validate(v)).map((v) => ({ label: v, value: v }));
-        setOpt([...options, ...valueOptions, newOption]);
+        setOpt([...opt, { label: text, value: text }]);
       }
     },
-    [options, value],
+    [value],
   );
+
+  const [onLocalChange] = useAsyncCallback(async (values) => {
+    const storedValues = values.filter(validate);
+    const newValues = values.filter((v) => !validate(v));
+
+    for (const v of newValues) {
+      const id = uuid();
+      const newOption = await createOption(id, v);
+
+      storedValues.push(id);
+    }
+
+    onChange(storedValues);
+  }, []);
 
   return (
     <View className={classnames('my-2 flex flex-grow space-y-2', classNames)}>
@@ -47,7 +76,7 @@ const MultiSelectSearch = ({ onChange, classNames, name, value = [], options = [
           inputSearchStyle={tw`h-[48px] leading-5 text-lg`}
           labelField="label"
           maxHeight={300}
-          onChange={onChange}
+          onChange={onLocalChange}
           onChangeText={addOption}
           placeholder="Select Category"
           placeholderStyle={tw`text-lg`}

@@ -2,15 +2,14 @@ import { Rating, Item } from '../types';
 import ListItem from './ui/ListItem';
 
 type RatingItemProps = {
-  categoryId: string;
   rating: Rating;
   item: Item;
 };
 
-const RatingItem = ({ categoryId, rating, item }: RatingItemProps) => (
+const RatingItem = ({ rating, item }: RatingItemProps) => (
   <ListItem
-    href={`/category/${categoryId}/item/${item.itemId}/rating/${rating.ratingId}`}
-    labelText={`${rating.ratingTotal || 0}`}
+    href={`/item/${item.itemId}/rating/${rating.ratingId}`}
+    labelText={`${rating.compositeRating || rating.overallRating}`}
     subtitle={rating.ratingNotes}
     title={new Date(rating.ratingTime).toLocaleDateString()}
   />

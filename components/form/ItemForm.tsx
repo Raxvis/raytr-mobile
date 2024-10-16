@@ -1,6 +1,6 @@
 import { Item } from '../../types';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { Image, View, TouchableOpacity } from 'react-native';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
@@ -12,8 +12,10 @@ import useAsyncCallback from '../../hooks/useAsyncCallback';
 import upsertItem from '../../services/item/upsertItem';
 import Multiselect from '../ui/Multiselect';
 import getAllCategories from '../../services/category/getAllCategories';
+import createCategory from '../../services/category/createCategory';
 import createOptions from '../../utils/createOptions';
 import useAsyncMemo from '../../hooks/useAsyncMemo';
+import useItemForm from '../../reducers/useItemForm';
 
 type ItemFormProps = {
   edit?: boolean;
@@ -21,15 +23,20 @@ type ItemFormProps = {
 };
 
 const ItemForm = ({ edit, initialState }: ItemFormProps) => {
-  const [state, setState] = useState(initialState);
-  const [categories, setCategories] = useState([]);
-
-  const updateValue = (key) => (value) => setState((s) => ({ ...s, [key]: value }));
+  const { actions, state } = useItemForm(initialState);
 
   const [save, { loading: saving }] = useAsyncCallback(async () => {
-    await upsertItem(state, categories);
-    router.replace(`/add/${state.itemId}`);
-  }, [state, categories]);
+    try {
+      await upsertItem(state);
+      if (edit) {
+        router.back();
+      } else {
+        router.replace(`/add/${state.itemId}`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, [state]);
 
   const pickLibraryImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -41,7 +48,7 @@ const ItemForm = ({ edit, initialState }: ItemFormProps) => {
     });
 
     if (!result.canceled) {
-      setState((s) => ({ ...s, itemPicture: result.assets[0].uri }));
+      actions.updateItemPicture(result.assets[0].uri);
     }
   };
 
@@ -64,42 +71,45 @@ const ItemForm = ({ edit, initialState }: ItemFormProps) => {
     });
 
     if (!result.canceled) {
-      setState((s) => ({ ...s, itemPicture: result.assets[0].uri }));
+      actions.updateItemPicture(result.assets[0].uri);
     }
   };
 
-  const removeImage = () => setState((s) => ({ ...s, itemPicture: null }));
-
-  const upateCategories = useCallback((value) => {
-    setCategories(value);
-  }, []);
-
-  const [categoryOptions] = useAsyncMemo(async () => {
-    const categorys = await getAllCategories();
-    const categoryOptions = createOptions(categorys, 'categoryName', 'categoryId');
+  const getCategoryOptions = async () => {
+    const categories = await getAllCategories();
+    const categoryOptions = createOptions(categories, 'categoryName', 'categoryId');
 
     return categoryOptions;
-  }, []);
+  };
+
+  const createNewCategory = async (value, label) => {
+    await createCategory({ categoryId: value, categoryName: label });
+    return { value, label };
+  };
 
   return (
     <EditLayout>
       <View className="flex flex-grow">
-        <Header title="Add Item" />
+        <Header title={edit ? 'Edit Item' : 'Add Item'} />
         <View className="flex p-2">
-          <TextInput name="Item Name" onChange={updateValue('itemName')} value={state.itemName} />
+          <TextInput
+            name="Item Name"
+            onChange={(value) => actions.updateItem({ itemName: value })}
+            value={state.itemName}
+          />
           <TextInput
             multiline
             name="Item Description"
-            onChange={updateValue('itemDescription')}
+            onChange={(value) => actions.updateItem({ itemDescription: value })}
             value={state.itemDescription}
           />
-          <TextInput
-            name="Item Cost"
-            keyboardType="numeric"
-            onChange={updateValue('itemCost')}
-            value={state.itemCost ? `${state.itemCost}` : undefined}
+          <Multiselect
+            createOption={createNewCategory}
+            loadOptions={getCategoryOptions}
+            name="Category"
+            onChange={(values) => actions.updateCategoryIds(values)}
+            value={state.categoryIds}
           />
-          <Multiselect options={categoryOptions} name="Category" onChange={upateCategories} value={categories} />
           <View className="flex">
             {state.itemPicture ? (
               <View className="flex">
@@ -108,7 +118,7 @@ const ItemForm = ({ edit, initialState }: ItemFormProps) => {
                   source={{ uri: state.itemPicture }}
                 />
                 <View className="absolute right-0 top-0 flex">
-                  <TouchableOpacity onPress={removeImage}>
+                  <TouchableOpacity onPress={() => actions.updateItemPicture(null)}>
                     <View className="rounded-bl bg-black p-4">
                       <XMarkIcon color="white" size={25} />
                     </View>

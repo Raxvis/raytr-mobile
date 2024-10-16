@@ -6,6 +6,7 @@ const knex = Knex({
   connection: {
     filename: 'raytr.db',
   },
+  useNullAsDefault: true,
 });
 
 export default knex;

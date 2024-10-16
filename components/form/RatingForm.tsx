@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import Dropdown from '../../components/ui/Dropdown';
 import EditLayout from '../../components/layout/EditLayout';
 import Header from '../../components/ui/Header';
@@ -17,8 +17,7 @@ import getCategoryWithRatingMetric from '../../services/category/getCategoryWIth
 import deleteRating from '../../services/rating/deleteRating';
 import getItem from '../../services/item/getItem';
 import getItemRatings from '../../services/item/getItemMetrics';
-
-const find = (records, key, match) => (match ? records.find((record) => record[key] === match) : undefined);
+import useRatingForm from '../../reducers/useRatingForm';
 
 type ItemFormProps = {
   edit?: boolean;
@@ -26,104 +25,55 @@ type ItemFormProps = {
 };
 
 const RatingForm = ({ edit, initialState }: ItemFormProps) => {
-  const params = useLocalSearchParams();
-  const [rating, setRating] = useState<Rating>(initialState);
-  const [state, setState] = useState({
-    item: undefined,
-    ratingMetrics: [],
-  });
+  const { actions, state } = useRatingForm(initialState);
 
   useAsyncEffect(async () => {
     // Get schema for item
     const ratingMetrics = await getItemRatings(initialState.itemId);
-    const item = await getItem<Item>(initialState.itemId);
+    const item = await getItem(initialState.itemId);
 
-    // console.log(JSON.stringify(ratingMetrics, null, 2));
-
-    if (item) {
-      setRating((r) => ({ ...r, itemCost: item.itemCost }));
-      setState((s) => ({ ...s, item, ratingMetrics }));
-    }
-
-    setRating((r) => ({
-      ...r,
-      scores: ratingMetrics.map((ratingMetric) => ({
-        ratingId: r.ratingId,
-        scoreId: uuid(),
-        ratingMetricId: ratingMetric.ratingMetricId,
-        ratingMetric: ratingMetric,
-      })),
-    }));
+    if (item) actions.setItem(item);
+    if (ratingMetrics) actions.setRatingMetric(ratingMetrics);
   }, [initialState]);
 
-  const updateRating = (key) => (value) => setRating((r) => ({ ...r, [key]: value }));
-  const updateRatingScore = (value) => setRating((r) => ({ ...r, overallRating: Math.round(value) }));
-  const updateScore = (scoreId) => (value) =>
-    setRating((r) => ({
-      ...r,
-      scores: r.scores.map((score) => ({
-        ...score,
-        ...(score.scoreId === scoreId ? { scoreValue: Math.round(value) } : {}),
-      })),
-    }));
-  const updateRatingMetricName = (scoreId) => (value) =>
-    setRating((r) => ({
-      ...r,
-      scores: r.scores.map((score) => ({
-        ...score,
-        ratingMetric: {
-          ...score.ratingMetric,
-          ...(score.scoreId === scoreId ? { ratingMetricName: value } : {}),
-        },
-      })),
-    }));
-
-  const addRatingMetric = () => {
-    setRating((r) => ({
-      ...r,
-      scores: [
-        ...r.scores,
-        {
-          ratingId: r.ratingId,
-          scoreId: uuid(),
-          ratingMetricId: '',
-          ratingMetric: {
-            ratingMetricId: '',
-            ratingMetricName: '',
-          },
-        },
-      ],
-    }));
-  };
-
   const [save, { loading: saving }] = useAsyncCallback(async () => {
-    await upsertRating(rating);
+    try {
+      console.log(state.rating);
+      await upsertRating(state.rating);
 
-    if (edit) {
-      router.back();
-    } else {
-      router.back();
-      // router.replace(`/category/${rating.categoryId}/item/${rating.itemId}`);
+      if (edit) {
+        router.back();
+      } else {
+        router.back();
+        // router.replace(`/item/${rating.itemId}`);
+      }
+    } catch (e) {
+      console.log(e);
     }
-  }, [rating]);
+  }, [state.rating]);
 
   const [del, { loading: deleting }] = useAsyncCallback(async () => {
+    console.log(state);
     // await deleteRating(rating);
     // router.back();
-  }, [rating]);
+  }, [state.rating]);
 
   return (
     <EditLayout>
       <View className="flex flex-grow">
         <Header title="Add a Rating" subtitle={state?.item?.itemName} />
         <View className="flex p-2">
-          <TextInput name="Item Cost" onChange={updateRating('itemCost')} value={`${rating?.itemCost}`} />
-          <TextInput name="Rating Notes" multiline onChange={updateRating('ratingNotes')} value={rating?.ratingNotes} />
+          <TextInput
+            name="Rating Notes"
+            multiline
+            onChange={(value) => actions.updateRating({ ratingNotes: value })}
+            value={state?.rating?.ratingNotes}
+          />
           <View className="">
             <View className="mt-2">
               <View className="flex flex-row items-center justify-between">
                 <Text className="text-lg">Overall Rating</Text>
-                <Text className="">{rating.overallRating} Rating</Text>
+                <Text className="">{state?.rating?.overallRating} Rating</Text>
               </View>
               <Slider
                 style={{}}
@@ -131,11 +81,11 @@ const RatingForm = ({ edit, initialState }: ItemFormProps) => {
                 maximumValue={10}
                 minimumTrackTintColor="#000000"
                 maximumTrackTintColor="#FFFFFF"
-                onValueChange={updateRatingScore}
-                value={rating.overallRating}
+                onValueChange={(value) => actions.updateRating({ overallRating: Math.round(value) })}
+                value={state?.rating?.overallRating}
               />
             </View>
-            {rating?.scores.map((score: Score) => (
+            {state?.rating?.scores.map((score: Score) => (
               <View className="mt-2" key={score.scoreId}>
                 <View className="flex w-full flex-row items-center">
                   <View className="mr-8 flex flex-grow">
@@ -143,7 +93,9 @@ const RatingForm = ({ edit, initialState }: ItemFormProps) => {
                       <Text className="text-lg">{score.ratingMetric.ratingMetricName}</Text>
                     ) : (
                       <TextInput
-                        onChange={updateRatingMetricName(score.scoreId)}
+                        onChange={(value) =>
+                          actions.updateRatingMetricName({ scoreId: score.scoreId, ratingMetricName: value })
+                        }
                         value={score.ratingMetric.ratingMetricName}
                         classNames="flex-row items-center gap-8"
                         textInputClassNames="flex-grow"
@@ -151,7 +103,7 @@ const RatingForm = ({ edit, initialState }: ItemFormProps) => {
                       />
                     )}
                   </View>
-                  <Text className="">{score.scoreValue} Rating</Text>
+                  <Text className="">{score.score} Rating</Text>
                 </View>
                 <View className="flex w-full flex-grow">
                   <Slider
@@ -160,14 +112,14 @@ const RatingForm = ({ edit, initialState }: ItemFormProps) => {
                     maximumValue={10}
                     minimumTrackTintColor="#000000"
                     maximumTrackTintColor="#FFFFFF"
-                    onValueChange={updateScore(score.scoreId)}
-                    value={score.scoreValue}
+                    onValueChange={(value) => actions.updateScore({ scoreId: score.scoreId, score: Math.round(value) })}
+                    value={score.score}
                   />
                 </View>
               </View>
             ))}
           </View>
-          <Button onPress={addRatingMetric} text="Add Rating Metric" />
+          <Button onPress={actions.addRatingMetric} text="Add Rating Metric" />
         </View>
       </View>
       <View className="mt-8 flex space-x-2 p-2">
