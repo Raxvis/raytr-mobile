@@ -7,7 +7,7 @@ const getNewItem = (): Item => ({
   itemName: '',
   itemPicture: '',
   itemDescription: '',
-  categories: [],
+  categoryIds: [],
 });
 
 const AddItem = () => <ItemForm initialState={getNewItem()} />;
