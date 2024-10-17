@@ -1,5 +1,13 @@
 # TODO
 
+- Item page add Multiple scores (labels)
+- Rating page (adding item name to rating)
+- Edit Rating
+- Items page
+- Categories page
+- Calculate average score on new rating
+- Items display average score
+
 ## New
 
 ```
