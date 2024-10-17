@@ -8,6 +8,8 @@ import { validate } from 'uuid';
 import uuid from '../../utils/uuid';
 import useAsyncEffect from '../../hooks/useAsyncEffect';
 import useAsyncCallback from '../../hooks/useAsyncCallback';
+import getAllCategories from '../../services/category/getAllCategories';
+import createOptions from '../../utils/createOptions';
 
 type Option = {
   label: string;
@@ -33,7 +35,7 @@ const MultiSelectSearch = ({
   onChange,
   classNames,
   name,
-  value = [],
+  value,
   loadOptions,
   createOption,
 }: MultiSelectSearchProps) => {
@@ -42,7 +44,7 @@ const MultiSelectSearch = ({
   useAsyncEffect(async () => {
     const options = await loadOptions();
     setOpt(options);
-  }, [value]);
+  }, []);
 
   const addOption = useCallback(
     (text) => {
@@ -62,6 +64,9 @@ const MultiSelectSearch = ({
       const newOption = await createOption(id, v);
 
       storedValues.push(id);
+
+      const options = await loadOptions();
+      setOpt(options);
     }
 
     onChange(storedValues);
